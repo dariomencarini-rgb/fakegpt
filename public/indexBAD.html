@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FakeGPT - Accuratezza 0%</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛑</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- LIBRERIA PER GENERARE L'IMMAGINE DEL CERTIFICATO -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .animate-thinking { animation: pulse-slow 1.5s infinite; }
+
+    /* Stile Effetto Vetro (Glassmorphism) */
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    /* Stile personalizzato per la barra di scorrimento */
+    .custom-scrollbar::-webkit-scrollbar {
+     width: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.6);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 min-h-screen relative overflow-x-auto selection:bg-indigo-500 selection:text-white flex flex-col justify-between">
+
+  <!-- Sfondo luminoso decorativo (Glow effect) -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-tr from-indigo-600/20 via-purple-600/15 to-pink-600/5 blur-[120px] pointer-events-none rounded-full"></div>
+
+  <!-- MENU A SCOMPARSA (SIDEBAR) & OVERLAY -->
+  <div id="sidebarOverlay" onclick="chiudiSidebar()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  
+  <aside id="appSidebar" class="fixed top-0 left-0 bottom-0 w-80 glass-panel z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between p-6 border-r border-slate-700/50 shadow-2xl overflow-y-auto custom-scrollbar">
+    <div>
+      <!-- Header Sidebar -->
+      <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl">🛑</span>
+          <h2 class="font-bold text-lg tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">FakeGPT Menu</h2>
+        </div>
+        <button onclick="chiudiSidebar()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- Voci di Menu -->
+      <nav class="py-6 space-y-2">
+        <button onclick="chiudiSidebar(); document.getElementById('domandaInput').focus();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition duration-200 text-left">
+          <span>✨</span> Generatore Principale
+        </button>
+        <button onclick="chiudiSidebar(); generaNewsCasualeMenu();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-emerald-500/20 hover:text-emerald-300 transition duration-200 text-left">
+          <span>🎲</span> Generatore Casuale
+        </button>
+        <button onclick="chiudiSidebar(); apriModalHallOfFame();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-amber-500/20 hover:text-amber-300 transition duration-200 text-left">
+          <span>🏆</span> Hall of Fame (Classifica)
+        </button>
+        <button onclick="chiudiSidebar(); apriModalTutteLeBufale();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-blue-500/20 hover:text-blue-300 transition duration-200 text-left">
+          <span>📚</span> Tutte le bufale candidate
+        </button>
+        <button onclick="chiudiSidebar(); apriModalTrend();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-pink-500/20 hover:text-pink-300 transition duration-200 text-left">
+          <span>📈</span> Trend della Disinformazione
+        </button>
+        <button onclick="chiudiSidebar(); apriModalPatentino();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-purple-500/20 hover:text-purple-300 transition duration-200 text-left">
+          <span>📜</span> Il Patentino del Bufalaro
+        </button>
+        <button onclick="chiudiSidebar(); apriModalStatistiche();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-indigo-500/20 hover:text-indigo-300 transition duration-200 text-left">
+          <span>📊</span> Statistiche Generali
+        </button>
+      </nav>
+    </div>
+
+    <!-- Footer Sidebar -->
+    <div class="pt-6 border-t border-slate-800 text-xs text-slate-500 text-center">
+      FakeGPT v3.0 • Totalmente Affidabile (nel falso)
+    </div>
+  </aside>
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 p-4 flex justify-between items-center border-b border-slate-800/80 glass-panel">
+    <div class="flex items-center gap-3">
+      <button onclick="apriSidebar()" title="Apri menu" class="text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-lg p-2 transition flex items-center justify-center cursor-pointer">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      </button>
+      <a href="/" class="flex items-center space-x-2">
+        <span class="text-2xl">🛑</span>
+        <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">FakeGPT</h1>
+      </a>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="bg-amber-500/10 text-amber-400 text-xs font-semibold px-3 py-1 rounded-full border border-amber-500/20">
+        ⚠️ Accuratezza Garantita: 0%
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <main class="max-w-2xl w-full mx-auto p-4 flex-grow flex flex-col justify-center my-8">
+    
+    <div class="text-center mb-8">
+      <h2 class="text-3xl sm:text-4xl font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Chiedi qualsiasi cosa.</h2>
+      <p class="text-slate-400 text-sm sm:text-base">Ti garantiamo al 100% risposte completamente inventate, false e senza alcun senso scientifico.</p>
+    </div>
+
+    <!-- BOX BUFALA DEL GIORNO -->
+    <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30 mb-8 shadow-xl bg-gradient-to-r from-indigo-950/60 to-purple-950/60">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
+          ⭐ Bufala del Giorno
+        </span>
+        <span id="dataBufalaGiorno" class="text-[10px] text-slate-400 font-mono">--/--/----</span>
+      </div>
+      <h3 id="domandaBufalaGiorno" class="text-base font-bold text-white mb-2">Caricamento bufala...</h3>
+      <p id="testoBufalaGiorno" class="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
+        Chiedendo le ultime novità ai nostri esperti fittizi...
+      </p>
+    </div>
+
+    <!-- CASSELLA DI RICERCA + SELETTORE CARATTERE -->
+    <div class="glass-panel p-4 rounded-2xl shadow-xl mb-6 flex flex-col gap-3">
+      
+      <!-- MENU A TENDINA CARATTERE -->
+      <div class="flex items-center justify-between px-2 pt-1 border-b border-slate-700/50 pb-2">
+        <label for="carattereSelect" class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+          <span>🎭</span> Carattere della risposta:
+        </label>
+        <select 
+          id="carattereSelect" 
+          class="bg-slate-900 text-xs text-indigo-300 font-semibold py-1.5 px-3 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer">
+          <option value="auto">✨ Automatico (Contestuale)</option>
+          <option value="accademico">🎓 Accademico & Solenne</option>
+          <option value="insolente">😏 Insolente & Sferzante</option>
+          <option value="burocratico">📑 Burocratico & Cavilloso</option>
+          <option value="complottista">👁️ Complottista & Rivelatore</option>
+        </select>
+      </div>
+
+      <!-- FORM DI INPUT -->
+      <form id="fakeForm" onsubmit="generaRispostaFake(event)" class="flex flex-col sm:flex-row gap-2">
+        <div class="relative w-full flex items-center">
+          <input 
+            type="text" 
+            id="domandaInput" 
+            placeholder="Es: Perché il cielo è blu? Come si calcola la pensione?" 
+            required 
+            oninput="gestisciPulsanteCancella()"
+            class="w-full bg-slate-900/50 border border-slate-700/60 rounded-xl pl-3 pr-10 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          />
+          <button 
+            type="button" 
+            id="clearBtn"
+            onclick="cancellaInput()"
+            title="Cancella testo"
+            class="hidden absolute right-3 text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold transition cursor-pointer">
+            ✕
+          </button>
+        </div>
+        <button 
+          type="submit" 
+          class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-500/25 flex items-center justify-center shrink-0 cursor-pointer">
+          Sbaglia per me 🚀
+        </button>
+      </form>
+
+    </div>
+
+    <!-- ESEMPI RAPIDI -->
+    <div class="flex flex-wrap gap-2 justify-center mb-8">
+      <span class="text-xs text-slate-500 self-center mr-1">Esempi:</span>
+      <button onclick="impostaEsempio('Perché i gatti odiano l\'acqua?')" class="text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg border border-slate-700/50 transition duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">🐱 Gatti e acqua</button>
+      <button onclick="impostaEsempio('Chi ha inventato la pizza?')" class="text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg border border-slate-700/50 transition duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">🍕 Origine Pizza</button>
+      <button onclick="impostaEsempio('Come si calcola il PIL?')" class="text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg border border-slate-700/50 transition duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">📊 Calcolo PIL</button>
+    </div>
+
+    <!-- STATO DI CARICAMENTO -->
+    <div id="loading" class="hidden text-center py-8">
+      <p id="loadingText" class="text-indigo-400 animate-thinking italic text-sm">Consultando i peggiori bar di provincia...</p>
+    </div>
+
+    <!-- BOX RISPOSTA -->
+    <div id="rispostaContainer" class="glass-panel rounded-2xl p-6 shadow-2xl relative mb-8 opacity-0 translate-y-4 transition-all duration-500 ease-out hidden">
+      <div class="flex justify-between items-center mb-4 border-b border-slate-700/50 pb-3">
+        <span class="text-xs font-mono uppercase tracking-wider text-indigo-400">Risposta Ufficiale (e Falsa)</span>
+        <button id="btnCandida" onclick="candidaBufalaCorrente()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-semibold px-3 py-1 rounded-lg border border-amber-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 cursor-pointer">
+          🏆 Candida in Classifica
+        </button>
+      </div>
+      
+      <p id="testoRisposta" class="text-slate-200 text-base leading-relaxed mb-6 font-normal min-h-[4rem] break-words whitespace-pre-wrap">
+      </p>
+
+      <div class="flex flex-col gap-4 pt-2 border-t border-slate-700/50">
+        <div class="flex flex-wrap gap-2">
+          <button onclick="generaRispostaFake(event)" class="text-xs bg-slate-700/80 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+            🔄 Altra versione fake
+          </button>
+          <button onclick="copiaRisposta()" class="text-xs bg-slate-700/80 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+            📋 Copia la bufala
+          </button>
+          <button onclick="scaricaCertificato()" class="text-xs bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1 cursor-pointer">
+            📜 Scarica Certificato
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <span class="text-xs text-slate-400 font-medium">Condividi sui Social:</span>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="condividiTikTok()" title="Copia e Apri TikTok" class="w-9 h-9 bg-slate-950 hover:bg-black text-white rounded-lg flex items-center justify-center border border-slate-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.98-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.82.57-1.31 1.56-1.29 2.57.01 1.01.55 1.96 1.38 2.5 1.08.72 2.53.71 3.59-.01.81-.55 1.32-1.48 1.35-2.47.03-3.68.01-7.36.01-11.04z"/></svg>
+            </button>
+            <button onclick="condividiInstagram()" title="Copia e Apri Instagram" class="w-9 h-9 bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 hover:opacity-90 text-white rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </button>
+            <button onclick="condividiWhatsApp()" title="Condividi su WhatsApp" class="w-9 h-9 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+            </button>
+            <button onclick="condividiX()" title="Condividi su X (Twitter)" class="w-9 h-9 bg-sky-600 hover:bg-sky-500 text-white rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </button>
+            <button onclick="condividiFacebook()" title="Condividi su Facebook" class="w-9 h-9 bg-blue-700 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </button>
+            <button onclick="copiaLink()" title="Copia il link del sito" class="w-9 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
+              <svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEZIONE CLASSIFICA PRINCIPALE NELLA HOME -->
+    <div class="w-full max-w-2xl mx-auto mt-8 px-4">
+      <div class="flex w-full rounded-xl bg-slate-900/80 p-1 mb-6 border border-slate-800 shadow-lg glass-panel">
+        <button onclick="mostraTab('hall')" id="btnHall" class="flex-1 py-2.5 text-xs font-bold rounded-lg bg-amber-400/10 text-amber-400 transition flex items-center justify-center gap-2 cursor-pointer">
+          🏆 Hall of Fame
+        </button>
+        <button onclick="mostraTab('virali')" id="btnVirali" class="flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-2 cursor-pointer">
+          🚀 Appena Sfornate
+        </button>
+      </div>
+
+      <div id="tabHall" class="space-y-3">
+        <div id="hallOfFameList" class="space-y-3"></div>
+      </div>
+
+      <div id="tabVirali" class="space-y-3 hidden">
+        <div id="ultimeViraliList" class="space-y-3"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="p-4 text-center text-xs text-slate-500 border-t border-slate-800/80 flex flex-col gap-2 glass-panel">
+    <div>Progetto goliardico. Nessuna informazione presente su questo sito deve essere usata nella vita reale.</div>
+    <div class="space-x-3 text-slate-400">
+      <a href="chi-siamo.html" class="hover:text-slate-200 underline">Chi Siamo & Manifesto</a>
+      <span>•</span>
+      <a href="privacy.html" class="hover:text-slate-200 underline">Privacy Policy</a>
+      <span>•</span>
+      <a href="termini.html" class="hover:text-slate-200 underline">Termini & Disclaimer</a>
+    </div>
+  </footer>
+
+  <!-- MODAL: HALL OF FAME -->
+  <div id="modalHallOfFame" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-2xl max-h-[85vh] rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
+      <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏆</span>
+          <h3 class="font-bold text-lg text-white">Hall of Fame - Le più votate</h3>
+        </div>
+        <button onclick="chiudiModalHallOfFame()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition cursor-pointer">✕</button>
+      </div>
+      <div id="modalHallOfFameContainer" class="p-5 overflow-y-auto custom-scrollbar space-y-3 flex-grow"></div>
+      <div class="p-4 border-t border-slate-800 text-right bg-slate-900/50">
+        <button onclick="chiudiModalHallOfFame()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TUTTE LE BUFALE CANDIDATE -->
+  <div id="modalTutteBufale" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-2xl max-h-[85vh] rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
+      <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📚</span>
+          <h3 class="font-bold text-lg text-white">Archivio Completo: Tutte le Bufale Candidate</h3>
+        </div>
+        <button onclick="chiudiModalTutteLeBufale()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition cursor-pointer">✕</button>
+      </div>
+      <div id="archivioCompletoContainer" class="p-5 overflow-y-auto custom-scrollbar space-y-3 flex-grow"></div>
+      <div class="p-4 border-t border-slate-800 text-right bg-slate-900/50">
+        <button onclick="chiudiModalTutteLeBufale()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TREND DELLA DISINFORMAZIONE -->
+  <div id="modalTrend" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
+      <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📈</span>
+          <h3 class="font-bold text-lg text-white">Trend della Disinformazione</h3>
+        </div>
+        <button onclick="chiudiModalTrend()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition cursor-pointer">✕</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-xs text-slate-300">Argomenti più falsificati dalla community nell'ultimo mese:</p>
+        <div id="trendContainer" class="space-y-3">
+          <p class="text-xs text-slate-500 italic text-center py-2">Caricamento trend in corso...</p>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-800 text-right bg-slate-900/50">
+        <button onclick="chiudiModalTrend()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: IL PATENTINO DEL BUFALARO -->
+  <div id="modalPatentino" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-lg rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
+      <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📜</span>
+          <h3 class="font-bold text-lg text-white">Il Patentino del Bufalaro</h3>
+        </div>
+        <button onclick="chiudiModalPatentino()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition cursor-pointer">✕</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div id="quizContainer">
+          <div class="flex justify-between items-center mb-3">
+            <span id="indicatoreDomanda" class="text-xs text-indigo-300 font-semibold uppercase tracking-wider">Domanda 1 di 3</span>
+            <span id="punteggioParziale" class="text-xs text-slate-400 font-mono">Punti: 0</span>
+          </div>
+          <p id="testoDomandaQuiz" class="text-sm text-slate-100 font-medium mb-4">Caricamento domanda...</p>
+          <div id="opzioniQuizContainer" class="space-y-2"></div>
+        </div>
+        <div id="patentinoRisultato" class="hidden text-center py-4 space-y-3">
+          <div id="iconaPatentino" class="text-5xl">🏆</div>
+          <h4 id="titoloPatentino" class="text-base font-bold text-amber-400">Titolo...</h4>
+          <p id="descrizionePatentino" class="text-xs text-slate-300 italic leading-relaxed">Descrizione...</p>
+          <div class="pt-2">
+            <span class="text-xs text-slate-400 font-mono">Punteggio totale: <strong id="punteggioFinaleNum" class="text-white">0</strong> / 3</span>
+          </div>
+          <button onclick="avviaQuizPatentino()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer mt-2">Rifai il Test</button>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-800 text-right bg-slate-900/50">
+        <button onclick="chiudiModalPatentino()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: STATISTICHE DELLA DISINFORMAZIONE -->
+  <div id="modalStatistiche" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
+      <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📊</span>
+          <h3 class="font-bold text-lg text-white">Statistiche della Disinformazione</h3>
+        </div>
+        <button onclick="chiudiModalStatistiche()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition cursor-pointer">✕</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+          <span class="text-xs text-slate-400 font-medium">Bufale Totali in Archivio:</span>
+          <span id="statTotaliBufale" class="text-lg font-bold text-indigo-400 font-mono">0</span>
+        </div>
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+          <span class="text-xs text-slate-400 font-medium">Voti Assegnati dalla Community:</span>
+          <span id="statTotaliVoti" class="text-lg font-bold text-amber-400 font-mono">0</span>
+        </div>
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+          <span class="text-xs text-slate-400 font-medium">Indice Medio di Falsità:</span>
+          <span class="text-lg font-bold text-pink-400 font-mono">100% 🎯</span>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-800 text-right bg-slate-900/50">
+        <button onclick="chiudiModalStatistiche()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE INVISIBILE PER IL CERTIFICATO -->
+  <div class="fixed -left-[9999px] -top-[9999px]">
+    <div id="certificatoTemplate" class="w-[600px] bg-amber-50 text-slate-900 p-8 border-8 border-slate-900 font-serif relative shadow-2xl">
+      <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+        <span class="text-9xl font-black border-8 border-red-800 text-red-800 p-4 -rotate-12 uppercase">FALSO</span>
+      </div>
+      <div class="text-center border-b-2 border-slate-900 pb-4 mb-6">
+        <div class="text-xs uppercase tracking-widest font-bold text-slate-600 mb-1">Repubblica delle Bufale • Ministero della Disinformazione</div>
+        <h1 class="text-2xl font-black uppercase text-slate-900 tracking-wider">Certificato Ufficiale di Falsità</h1>
+        <p class="text-xs italic text-slate-500 mt-1">Ai sensi dell'art. 0 del Codice della Fantasia</p>
+      </div>
+      <div class="space-y-4 mb-8">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Quesito Posto:</span>
+          <p id="certDomanda" class="text-base font-bold italic text-slate-800">"..."</p>
+        </div>
+        <div class="bg-amber-100/60 p-4 border-l-4 border-slate-900 rounded-r">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Responso Fittizio Ufficiale:</span>
+          <p id="certRisposta" class="text-sm leading-relaxed text-slate-900 font-sans">...</p>
+        </div>
+      </div>
+      <div class="flex justify-between items-end border-t border-slate-400 pt-4 text-[10px] text-slate-600">
+        <div>
+          <p>Rilasciato da: <strong class="font-sans">FakeGPT AI</strong></p>
+          <p>Garantito al: <strong class="text-red-700">0% Veritiero</strong></p>
+        </div>
+        <div class="text-center">
+          <div class="w-24 border-b border-slate-800 mb-1"></div>
+          <p class="italic">Firma del Funzionario</p>
+        </div>
+        <div>
+          <p>Data: <span id="certData" class="font-mono">--/--/----</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGICA FRONTEND -->
+  <script>
+    const messaggiAttesa = [
+      "Consultando i peggiori bar di provincia...",
+      "Inventando dati statistici totalmente a caso...",
+      "Chiedendo conferma a un complottista di fiducia...",
+      "Traducendo da una fonte assolutamente inattendibile...",
+      "Ignorando qualsiasi evidenza scientifica..."
+    ];
+
+    const domandeCasualiLista = [
+      "Perché i piccioni non atterrano mai?",
+      "Come si fa la carbonara con il dentifricio?",
+      "Qual è la capitale segreta del Molise?",
+      "Perché gli alieni preferiscono i distributori automatici?",
+      "Come calcolare i contributi INPS lavorando su Marte?"
+    ];
+
+    const quizDomande = [
+      {
+        domanda: "Qual è il metodo migliore per verificare una notizia palesemente assurda?",
+        opzioni: [
+          { testo: "Chiedere direttamente su FakeGPT senza alcuna verifica", corretto: true },
+          { testo: "Consultare almeno tre fonti giornalistiche autorevoli", corretto: false },
+          { testo: "Verificare le pubblicazioni su riviste scientifiche peer-reviewed", corretto: false }
+        ]
+      },
+      {
+        domanda: "Se un post inizia con 'I poteri forti non vogliono che tu lo sappia', cosa sta succedendo?",
+        opzioni: [
+          { testo: "Stanno per venderti un corso di criptovalute o una bufala galattica", corretto: true },
+          { testo: "È in corso un'indagine giudiziaria ufficiale", corretto: false },
+          { testo: "È un comunicato stampa istituzionale", corretto: false }
+        ]
+      },
+      {
+        domanda: "Qual è la percentuale di affidabilità garantita da FakeGPT?",
+        opzioni: [
+          { testo: "Esattamente lo 0%, con bollino di fuffa garantita", corretto: true },
+          { testo: "Il 50% di probabilità di indovinare", corretto: false },
+          { testo: "Il 100% se consultito di notte", corretto: false }
+        ]
+      }
+    ];
+
+    let quizIndiceCorrente = 0;
+    let quizPunteggio = 0;
+    let intervalloAttesa;
+    let ultimaDomanda = '';
+    let ultimaRisposta = '';
+    let cacheBufaleGlobali = [];
+
+    function apriSidebar() {
+      document.getElementById('appSidebar').classList.remove('-translate-x-full');
+      document.getElementById('sidebarOverlay').classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function chiudiSidebar() {
+      document.getElementById('appSidebar').classList.add('-translate-x-full');
+      document.getElementById('sidebarOverlay').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function apriModalHallOfFame() {
+      const modal = document.getElementById('modalHallOfFame');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      popolaModalHallOfFame();
+    }
+    function chiudiModalHallOfFame() {
+      const modal = document.getElementById('modalHallOfFame');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    function apriModalTutteLeBufale() {
+      const modal = document.getElementById('modalTutteBufale');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      popolaArchivioCompleto();
+    }
+    function chiudiModalTutteLeBufale() {
+      const modal = document.getElementById('modalTutteBufale');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    function apriModalTrend() {
+      const modal = document.getElementById('modalTrend');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      caricaTrendDinamici();
+    }
+    function chiudiModalTrend() {
+      const modal = document.getElementById('modalTrend');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    async function caricaTrendDinamici() {
+      const container = document.getElementById('trendContainer');
+      try {
+        const res = await fetch('/api/stats/trends');[cite: 2]
+        const data = await res.json();
+        const listaTrend = data.trends || [];[cite: 2]
+
+        if (!listaTrend || listaTrend.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-2">Nessun trend disponibile al momento.</p>';
+          return;
+        }
+
+        container.innerHTML = listaTrend.map(t => `
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-200 font-medium">📊 ${t.categoria}</span>
+              <span class="text-indigo-400 font-mono">${t.percentuale}%</span>
+            </div>
+            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+              <div class="bg-indigo-500 h-full" style="width: ${t.percentuale}%"></div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error("Errore caricamento trend:", err);
+        container.innerHTML = '<p class="text-xs text-red-400 italic text-center py-2">Impossibile caricare i trend dinamici.</p>';
+      }
+    }
+
+    function apriModalPatentino() {
+      const modal = document.getElementById('modalPatentino');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      avviaQuizPatentino();
+    }
+    function chiudiModalPatentino() {
+      const modal = document.getElementById('modalPatentino');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    function avviaQuizPatentino() {
+      quizIndiceCorrente = 0;
+      quizPunteggio = 0;
+      resetPatentino();
+      mostraDomandaQuiz();
+    }
+
+    function mostraDomandaQuiz() {
+      const q = quizDomande[quizIndiceCorrente];
+      document.getElementById('indicatoreDomanda').innerText = `Domanda ${quizIndiceCorrente + 1} di ${quizDomande.length}`;
+      document.getElementById('punteggioParziale').innerText = `Punti: ${quizPunteggio}`;
+      document.getElementById('testoDomandaQuiz').innerText = q.domanda;
+
+      const containerOpzioni = document.getElementById('opzioniQuizContainer');
+      containerOpzioni.innerHTML = q.opzioni.map((op, idx) => `
+        <button onclick="rispondiPatentino(${op.corretto})" class="w-full text-left text-xs bg-slate-900/70 hover:bg-indigo-600/20 text-slate-200 hover:text-indigo-300 p-3 rounded-xl border border-slate-800 transition duration-200 cursor-pointer">
+          ${idx + 1}. ${op.testo}
+        </button>
+      `).join('');
+    }
+
+    function rispondiPatentino(corretto) {
+      if (corretto) quizPunteggio++;
+      quizIndiceCorrente++;
+      if (quizIndiceCorrente < quizDomande.length) {
+        mostraDomandaQuiz();
+      } else {
+        mostraRisultatoPatentino();
+      }
+    }
+
+    function mostraRisultatoPatentino() {
+      document.getElementById('quizContainer').classList.add('hidden');
+      document.getElementById('patentinoRisultato').classList.remove('hidden');
+      document.getElementById('punteggioFinaleNum').innerText = quizPunteggio;
+
+      const icona = document.getElementById('iconaPatentino');
+      const titolo = document.getElementById('titoloPatentino');
+      const desc = document.getElementById('descrizionePatentino');
+
+      if (quizPunteggio === 3) {
+        icona.innerText = "👑";
+        titolo.innerText = "Gran Maestro della Fuffa";
+        desc.innerText = "Hai totalizzato il punteggio massimo! Sei ufficialmente qualificato per diffondere bufale spaziali senza alcuna remora.";
+      } else if (quizPunteggio >= 1) {
+        icona.innerText = "🥈";
+        titolo.innerText = "Apprendista Bufalaro";
+        desc.innerText = "Te la cavi discretamente, ma hai ancora bisogno di affinare l'arte dell'invenzione totale.";
+      } else {
+        icona.innerText = "❌";
+        titolo.innerText = "Troppo Onesto";
+        desc.innerText = "Hai troppa aderenza alla realtà! Ti consigliamo di riprovare e far finta di non sapere nulla.";
+      }
+    }
+
+    function resetPatentino() {
+      document.getElementById('quizContainer').classList.remove('hidden');
+      document.getElementById('patentinoRisultato').classList.add('hidden');
+    }
+
+    function apriModalStatistiche() {
+      const modal = document.getElementById('modalStatistiche');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      aggiornaStatisticheModal();
+    }
+    function chiudiModalStatistiche() {
+      const modal = document.getElementById('modalStatistiche');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    function aggiornaStatisticheModal() {
+      document.getElementById('statTotaliBufale').innerText = cacheBufaleGlobali.length;
+      document.getElementById('statTotaliVoti').innerText = cacheBufaleGlobali.reduce((acc, curr) => acc + (curr.voti || 0), 0);
+    }
+
+    function generaNewsCasualeMenu() {
+      const casuale = domandeCasualiLista[Math.floor(Math.random() * domandeCasualiLista.length)];
+      document.getElementById('domandaInput').value = casuale;
+      gestisciPulsanteCancella();
+      generaRispostaFake(new Event('submit'));
+    }
+
+    function popolaModalHallOfFame() {
+      const container = document.getElementById('modalHallOfFameContainer');
+      if (!cacheBufaleGlobali || cacheBufaleGlobali.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-6">Nessuna bufala presente.</p>';
+        return;
+      }
+      const perVoti = [...cacheBufaleGlobali].sort((a, b) => b.voti - a.voti);
+      container.innerHTML = perVoti.map((b, index) => `
+        <div class="glass-panel p-3.5 rounded-xl flex items-start justify-between gap-3 shadow-sm border border-slate-700/50">
+          <div class="flex items-start gap-2.5 min-w-0 flex-1">
+            <span class="text-amber-400 text-xs shrink-0 mt-0.5 font-bold font-mono">#${index + 1}</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
+              <p class="text-[11px] text-slate-400 italic mt-1 break-words">${b.risposta}</p>
+            </div>
+          </div>
+          <button onclick="votaBufala(${b.id})" class="bg-slate-800/80 hover:bg-slate-700 text-amber-400 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-600/60 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 shrink-0 self-start cursor-pointer">
+            👍 <span>${b.voti}</span>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function popolaArchivioCompleto() {
+      const container = document.getElementById('archivioCompletoContainer');
+      if (!cacheBufaleGlobali || cacheBufaleGlobali.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-6">Nessuna bufala presente nell\'archivio.</p>';
+        return;
+      }
+      const listaOrdinata = [...cacheBufaleGlobali].sort((a, b) => b.id - a.id);
+      container.innerHTML = listaOrdinata.map((b) => `
+        <div class="glass-panel p-3.5 rounded-xl flex items-start justify-between gap-3 shadow-sm border border-slate-700/50">
+          <div class="flex items-start gap-2.5 min-w-0 flex-1">
+            <span class="text-amber-400 text-xs shrink-0 mt-0.5 font-mono">#${b.id}</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
+              <p class="text-[11px] text-slate-400 italic mt-1 break-words">${b.risposta}</p>
+            </div>
+          </div>
+          <button onclick="votaBufala(${b.id})" class="bg-slate-800/80 hover:bg-slate-700 text-amber-400 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-600/60 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 shrink-0 self-start cursor-pointer">
+            👍 <span>${b.voti}</span>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function scriviTestoMacchina(elemento, testo, velocita = 15) {
+      elemento.textContent = '';
+      const testoPulito = testo.replace(/\u00A0/g, ' ').replace(/[\u200B-\u200D\uFEFF]/g, '');
+      let i = 0;
+      return new Promise((resolve) => {
+        function digita() {
+          if (i < testoPulito.length) {
+            elemento.textContent += testoPulito.charAt(i);
+            i++;
+            setTimeout(digita, velocita);
+          } else {
+            resolve();
+          }
+        }
+        digita();
+      });
+    }
+
+    function gestisciPulsanteCancella() {
+      const domandaInput = document.getElementById('domandaInput');
+      const clearBtn = document.getElementById('clearBtn');
+      if (domandaInput.value.trim().length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+    }
+
+    function cancellaInput() {
+      const domandaInput = document.getElementById('domandaInput');
+      domandaInput.value = '';
+      document.getElementById('clearBtn').classList.add('hidden');
+      domandaInput.focus();
+    }
+
+    function impostaEsempio(testo) {
+      document.getElementById('domandaInput').value = testo;
+      gestisciPulsanteCancella();
+      generaRispostaFake(new Event('submit'));
+    }
+
+    async function generaRispostaFake(e) {
+      e.preventDefault();
+      const domandaInput = document.getElementById('domandaInput');
+      const carattereSelect = document.getElementById('carattereSelect');
+      const btnCandida = document.getElementById('btnCandida');
+      
+      const domanda = domandaInput.value.trim();
+      const carattere = carattereSelect.value;
+      if (!domanda) return;
+
+      const loading = document.getElementById('loading');
+      const rispostaContainer = document.getElementById('rispostaContainer');
+      const loadingText = document.getElementById('loadingText');
+      const testoRisposta = document.getElementById('testoRisposta');
+
+      rispostaContainer.classList.add('hidden', 'opacity-0', 'translate-y-4');
+      loading.classList.remove('hidden');
+
+      btnCandida.disabled = false;
+      btnCandida.innerText = '🏆 Candida in Classifica';
+      btnCandida.className = 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-semibold px-3 py-1 rounded-lg border border-amber-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 cursor-pointer';
+
+      let indiceCorrente = Math.floor(Math.random() * messaggiAttesa.length);
+      loadingText.innerText = messaggiAttesa[indiceCorrente];
+
+      clearInterval(intervalloAttesa);
+      intervalloAttesa = setInterval(() => {
+        indiceCorrente = (indiceCorrente + 1) % messaggiAttesa.length;
+        loadingText.innerText = messaggiAttesa[indiceCorrente];
+      }, 1200);
+
+      try {
+        const res = await fetch('/api/fake-answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domanda, carattere })
+        });
+
+        const data = await res.json();
+        clearInterval(intervalloAttesa);
+        loading.classList.add('hidden');
+        
+        rispostaContainer.classList.remove('hidden');
+        setTimeout(() => {
+          rispostaContainer.classList.remove('opacity-0', 'translate-y-4');
+          rispostaContainer.classList.add('opacity-100', 'translate-y-0');
+        }, 10);
+
+        if (data.risposta) {
+          ultimaDomanda = domanda;
+          ultimaRisposta = data.risposta;
+          await scriviTestoMacchina(testoRisposta, data.risposta, 18);
+        } else {
+          testoRisposta.textContent = "Errore durante il recupero della bufala.";
+        }
+      } catch (err) {
+        console.error(err);
+        clearInterval(intervalloAttesa);
+        loading.classList.add('hidden');
+        rispostaContainer.classList.remove('hidden');
+        setTimeout(() => {
+          rispostaContainer.classList.remove('opacity-0', 'translate-y-4');
+          rispostaContainer.classList.add('opacity-100', 'translate-y-0');
+        }, 10);
+        testoRisposta.textContent = "Impossibile connettersi al server delle risposte fake.";
+      }
+    }
+
+    async function candidaBufalaCorrente() {
+      const btn = document.getElementById('btnCandida');
+      if (!ultimaDomanda || !ultimaRisposta) return;
+
+      try {
+        btn.disabled = true;
+        btn.innerText = '⏳ Inserimento...';
+
+        const res = await fetch('/api/classifica/vota', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domanda: ultimaDomanda, risposta: ultimaRisposta })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          btn.innerText = '✅ Candidata!';
+          btn.className = 'bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-lg border border-emerald-500/30 transition flex items-center gap-1.5';
+          caricaClassifica();
+        }
+      } catch (err) {
+        console.error("Errore durante la candidatura:", err);
+        btn.innerText = '❌ Errore';
+        btn.disabled = false;
+      }
+    }
+
+    function mostraTab(tipo) {
+      const tabHall = document.getElementById('tabHall');
+      const tabVirali = document.getElementById('tabVirali');
+      const btnHall = document.getElementById('btnHall');
+      const btnVirali = document.getElementById('btnVirali');
+
+      if (tipo === 'hall') {
+        tabHall.classList.remove('hidden');
+        tabVirali.classList.add('hidden');
+        btnHall.className = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-amber-400/10 text-amber-400 transition flex items-center justify-center gap-2 cursor-pointer";
+        btnVirali.className = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-2 cursor-pointer";
+      } else {
+        tabVirali.classList.remove('hidden');
+        tabHall.classList.add('hidden');
+        btnVirali.className = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-pink-400/10 text-pink-400 transition flex items-center justify-center gap-2 cursor-pointer";
+        btnHall.className = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-2 cursor-pointer";
+      }
+    }
+
+    async function caricaClassifica() {
+      try {
+        const res = await fetch('/api/classifica');
+        const data = await res.json();
+        cacheBufaleGlobali = data || [];
+
+        const containerHall = document.getElementById('hallOfFameList');
+        const containerVirali = document.getElementById('ultimeViraliList');
+        
+        if (!cacheBufaleGlobali || cacheBufaleGlobali.length === 0) {
+          const vuoto = '<p class="text-xs text-slate-500 italic text-center py-4">Nessuna bufala ancora presente.</p>';
+          containerHall.innerHTML = vuoto;
+          containerVirali.innerHTML = vuoto;
+          return;
+        }
+
+        const perVoti = [...cacheBufaleGlobali].sort((a, b) => b.voti - a.voti);
+        const perRecenti = [...cacheBufaleGlobali].sort((a, b) => b.id - a.id);
+
+        containerHall.innerHTML = perVoti.map((b, index) => `
+          <div class="glass-panel p-3 rounded-xl flex items-start justify-between gap-3 shadow-sm transition duration-200 hover:border-slate-600/60">
+            <div class="flex items-start gap-2.5 min-w-0 flex-1">
+              <span class="font-bold text-amber-400 text-xs shrink-0 mt-0.5">#${index + 1}</span>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
+                <p class="text-[11px] text-slate-400 italic mt-1 break-words">${b.risposta}</p>
+              </div>
+            </div>
+            <button onclick="votaBufala(${b.id})" class="bg-slate-800/80 hover:bg-slate-700 text-amber-400 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-600/60 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 shrink-0 self-start cursor-pointer">
+              👍 <span>${b.voti}</span>
+            </button>
+          </div>
+        `).join('');
+
+        containerVirali.innerHTML = perRecenti.map((b) => `
+          <div class="glass-panel p-3 rounded-xl flex items-start justify-between gap-3 shadow-sm transition duration-200 hover:border-slate-600/60">
+            <div class="flex items-start gap-2.5 min-w-0 flex-1">
+              <span class="text-pink-400 text-xs shrink-0 mt-0.5">🚀</span>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
+                <p class="text-[11px] text-slate-400 italic mt-1 break-words">${b.risposta}</p>
+              </div>
+            </div>
+            <button onclick="votaBufala(${b.id})" class="bg-slate-800/80 hover:bg-slate-700 text-pink-400 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-600/60 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 shrink-0 self-start cursor-pointer">
+              👍 <span>${b.voti}</span>
+            </button>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error("Errore caricamento classifiche:", err);
+      }
+    }
+
+    async function votaBufala(id) {
+      try {
+        const res = await fetch('/api/classifica/vota', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          await caricaClassifica();
+          const modalArchivio = document.getElementById('modalTutteBufale');
+          if (!modalArchivio.classList.contains('pointer-events-none')) popolaArchivioCompleto();
+          const modalHall = document.getElementById('modalHallOfFame');
+          if (!modalHall.classList.contains('pointer-events-none')) popolaModalHallOfFame();
+        } else {
+          alert(data.error || "⚠️ Si è verificato un errore durante l'operazione.");
+        }
+      } catch (err) {
+        console.error("Errore voto:", err);
+      }
+    }
+
+    function copiaRisposta() {
+      const testo = document.getElementById('testoRisposta').textContent;
+      navigator.clipboard.writeText(testo + " (Trovato su FakeGPT - Risposte 100% False)");
+      alert("Bufala copiata negli appunti!");
+    }
+
+    async function scaricaCertificato() {
+      const domanda = document.getElementById('domandaInput').value;
+      const risposta = document.getElementById('testoRisposta').textContent;
+      if (!risposta) return;
+
+      document.getElementById('certDomanda').innerText = `"${domanda}"`;
+      document.getElementById('certRisposta').innerText = risposta;
+      document.getElementById('certData').innerText = new Date().toLocaleDateString('it-IT');
+
+      const elemento = document.getElementById('certificatoTemplate');
+      try {
+        const canvas = await html2canvas(elemento, { scale: 2, useCORS: true });
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `Certificato_Bufala_FakeGPT.png`;
+        link.click();
+      } catch (err) {
+        console.error("Errore generazione certificato:", err);
+        alert("Impossibile generare l'immagine del certificato al momento.");
+      }
+    }
+
+    function condividiTikTok() {
+      copiaRisposta();
+      alert("Testo della bufala copiato negli appunti! Ora apri TikTok per incollarlo nei commenti o in un video.");
+      window.open('https://www.tiktok.com', '_blank');
+    }
+
+    function condividiInstagram() {
+      copiaRisposta();
+      alert("Testo della bufala copiato negli appunti! Ora apri Instagram per incollarlo in una Storia o Post.");
+      window.open('https://www.instagram.com', '_blank');
+    }
+
+    function condividiWhatsApp() {
+      const domanda = document.getElementById('domandaInput').value;
+      const testo = document.getElementById('testoRisposta').textContent;
+      const messaggio = encodeURIComponent(`Domanda: "${domanda}"\n\nRisposta FakeGPT: ${testo}\n\nGenerato su FakeGPT (Accuratezza 0%)`);
+      window.open(`https://api.whatsapp.com/send?text=${messaggio}`, '_blank');
+    }
+
+    function condividiX() {
+      const domanda = document.getElementById('domandaInput').value;
+      const testo = document.getElementById('testoRisposta').textContent;
+      const testoBreve = testo.length > 180 ? testo.substring(0, 177) + '...' : testo;
+      const messaggio = encodeURIComponent(`"FakeGPT su '${domanda}': ${testoBreve}" #FakeGPT`);
+      window.open(`https://twitter.com/intent/tweet?text=${messaggio}`, '_blank');
+    }
+
+    function condividiFacebook() {
+      const urlSito = encodeURIComponent(window.location.href);
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${urlSito}`, '_blank');
+    }
+
+    function copiaLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link del sito copiato negli appunti!");
+    }
+
+    async function caricaBufalaDelGiorno() {
+      try {
+        const res = await fetch('/api/bufala-del-giorno');
+        const data = await res.json();
+        document.getElementById('dataBufalaGiorno').innerText = data.data;
+        document.getElementById('domandaBufalaGiorno').innerText = `"${data.domanda}"`;
+        document.getElementById('testoBufalaGiorno').innerText = data.risposta;
+      } catch (err) {
+        console.error("Errore caricamento bufala del giorno:", err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      caricaBufalaDelGiorno();
+      caricaClassifica();
+    });
+  </script>
+</body>
+</html>

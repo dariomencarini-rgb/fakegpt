@@ -220,22 +220,17 @@ Domanda dell'utente: "${domanda}"`;
   }
 });
 
-
-
-// API: Bufala del Giorno (Crea la bufala solo se non esiste per oggi)
+// API: Bufala del Giorno (con salvataggio permanente nell'archivio storico)
 app.get('/api/bufala-del-giorno', async (req, res) => {
   const oggi = new Date().toLocaleDateString('it-IT');
 
   try {
-    // 1. Verifichiamo se esiste già una bufala per la data odierna
     const resultCheck = await db.execute({
       sql: 'SELECT data, domanda, risposta FROM bufala_giorno WHERE data = ?',
       args: [oggi]
     });
-    
     const bufalaEsistente = resultCheck.rows[0];
 
-    // 2. Se esiste già, restituiamo quella senza fare alcuna modifica
     if (bufalaEsistente) {
       return res.json({
         data: bufalaEsistente.data,
@@ -244,16 +239,15 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
       });
     }
 
-    // 3. Altrimenti, generiamo una nuova bufala tramite Gemini
     const promptBufalaGiorno = `Genera una 'Bufala del Giorno' per il sito FakeGPT. Deve essere un fatto completamente inventato e assurdo su un tema di attualità, scienza o storia. Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.`;
 
     const testo = await chiamaGeminiConRetry(promptBufalaGiorno);
     const pulito = testo.replace(/```json|```/g, '').trim();
     const dataJSON = JSON.parse(pulito);
 
-    // 4. Inseriamo la nuova bufala nel database per la data odierna
+    // Salviamo nell'archivio storico (usiamo INSERT OR IGNORE per sicurezza sulla data odierna)
     await db.execute({
-      sql: 'INSERT INTO bufala_giorno (data, domanda, risposta) VALUES (?, ?, ?)',
+      sql: 'INSERT OR REPLACE INTO bufala_giorno (data, domanda, risposta) VALUES (?, ?, ?)',
       args: [oggi, dataJSON.domanda, dataJSON.risposta]
     });
 
@@ -271,6 +265,19 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
     });
   }
 });
+
+// NEW API: Archivio di tutte le Bufale del Giorno passate
+app.get('/api/archivio-bufale', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT data, domanda, risposta FROM bufala_giorno ORDER BY data DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore recupero archivio bufale del giorno:", error);
+    res.status(500).json({ error: 'Errore nel recupero dell\'archivio.' });
+  }
+});
+
+
 
 // API: Recupero Classifica da Turso
 app.get('/api/classifica', async (req, res) => {
