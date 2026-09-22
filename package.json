@@ -1,0 +1,17 @@
+{
+  "name": "fake-gpt",
+  "version": "1.0.0",
+  "description": "FakeGPT - Accuratezza 0%",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.23.0",
+    "better-sqlite3": "^13.0.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.7.0"
+  }
+}
