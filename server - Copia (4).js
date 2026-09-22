@@ -3,7 +3,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
-import { createClient } from '@libsql/client';
+import Database from 'better-sqlite3';
 import rateLimit from 'express-rate-limit';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,74 +15,63 @@ const PORT = process.env.PORT || 3000;
 // Inizializzazione SDK Gemini con la chiave dalle variabili d'ambiente
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// Inizializzazione Client Turso Cloud
-const db = createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
+// Inizializzazione Database SQLite permanente
+const db = new Database('fakegpt.db');
 
-// Funzione asincrona per inizializzare tabelle e dati iniziali
-async function initDb() {
-  try {
-    // Creazione tabella bufale
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS bufale (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        domanda TEXT NOT NULL,
-        risposta TEXT NOT NULL,
-        carattere TEXT DEFAULT 'auto',
-        argomento TEXT DEFAULT 'Generale',
-        voti INTEGER DEFAULT 1,
-        data_creazione DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+// Creazione tabella bufale (inclusa la colonna 'carattere' e 'argomento' per i Trend)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS bufale (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    domanda TEXT NOT NULL,
+    risposta TEXT NOT NULL,
+    carattere TEXT DEFAULT 'auto',
+    argomento TEXT DEFAULT 'Generale',
+    voti INTEGER DEFAULT 1,
+    data_creazione DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
 
-    // Migration automatica per colonne (se mancano)
-    try { await db.execute(`ALTER TABLE bufale ADD COLUMN carattere TEXT DEFAULT 'auto'`); } catch (e) {}
-    try { await db.execute(`ALTER TABLE bufale ADD COLUMN argomento TEXT DEFAULT 'Generale'`); } catch (e) {}
-
-    // Creazione tabella bufala_giorno
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS bufala_giorno (
-        data TEXT PRIMARY KEY,
-        domanda TEXT NOT NULL,
-        risposta TEXT NOT NULL
-      )
-    `);
-
-    // Controllo se il db è vuoto per inserire le bufale storiche iniziali
-    const countResult = await db.execute('SELECT COUNT(*) as count FROM bufale');
-    const countCheck = countResult.rows[0];
-
-    if (countCheck.count === 0) {
-      await db.execute({
-        sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, ?)',
-        args: [
-          "Perché la luna è fatta di formaggio?",
-          "Nel 1969 l'Apollo 11 ha confermato che il cratere Tycho è composto al 98% da Pecorino Romano D.O.P. stagionato 24 mesi.",
-          "accademico",
-          "Scienza & Spazio",
-          124
-        ]
-      });
-      await db.execute({
-        sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, ?)',
-        args: [
-          "E' vero che la Torre di Pisa si sta raddrizzando a causa delle ricerche su Google Maps?",
-          "Assolutamente sì! Secondo un recente stusio dell'Agenzia Spaziale, la pressione esercitata dai satelliti per la geolocalizzazione e dai miliardi di clic degli utenti che cercano indicazioni stradali in Toscana sta generando un campo magnetico gravitazionale che sta letteralmente tirando su la torre. Gli ingegneri consigliano di smettere di cercare la piazza per evitare che diventi completamente dritta, rovinando il turismo.",
-          "burocratico",
-          "Accademico & Solenne",
-          98
-        ]
-      });
-    }
-    console.log("Database Turso inizializzato con successo!");
-  } catch (error) {
-    console.error("Errore durante l'inizializzazione del database:", error);
-  }
+// Migration automatica nel caso le colonne non esistessero in un DB già attivo
+try {
+  db.exec(`ALTER TABLE bufale ADD COLUMN carattere TEXT DEFAULT 'auto'`);
+} catch (e) {
+  // Colonna già esistente
 }
 
-initDb();
+try {
+  db.exec(`ALTER TABLE bufale ADD COLUMN argomento TEXT DEFAULT 'Generale'`);
+} catch (e) {
+  // Colonna già esistente
+}
+
+// Creazione tabella per memorizzare la Bufala del Giorno in modo persistente per data
+db.exec(`
+  CREATE TABLE IF NOT EXISTS bufala_giorno (
+    data TEXT PRIMARY KEY,
+    domanda TEXT NOT NULL,
+    risposta TEXT NOT NULL
+  )
+`);
+
+// Controllo se il db è vuoto per inserire le bufale storiche iniziali
+const countCheck = db.prepare('SELECT COUNT(*) as count FROM bufale').get();
+if (countCheck.count === 0) {
+  const insertInit = db.prepare('INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, ?)');
+  insertInit.run(
+    "Perché la luna è fatta di formaggio?",
+    "Nel 1969 l'Apollo 11 ha confermato che il cratere Tycho è composto al 98% da Pecorino Romano D.O.P. stagionato 24 mesi.",
+    "accademico",
+    "Scienza & Spazio",
+    124
+  );
+  insertInit.run(
+    "Come si calcola il PIL?",
+    "Il PIL si ottiene moltiplicando il numero di caffè presi al bar alle 8:00 del mattino per il coefficiente di elasticità delle brioche alla crema.",
+    "burocratico",
+    "Politica & Economia",
+    98
+  );
+}
 
 // Test rapido per stampare tutti i modelli supportati
 async function elencaModelli() {
@@ -137,6 +126,7 @@ async function chiamaGeminiConRetry(prompt, retries = 3, delay = 1000) {
     try {
       const response = await ai.models.generateContent({
         model: 'models/gemini-3.5-flash-lite', 
+     //   model: 'models/gemini-3.8-flash', 
         contents: prompt,
         config: {
           temperature: 1.1,
@@ -225,11 +215,8 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
   const oggi = new Date().toLocaleDateString('it-IT');
 
   try {
-    const resultCheck = await db.execute({
-      sql: 'SELECT domanda, risposta FROM bufala_giorno WHERE data = ?',
-      args: [oggi]
-    });
-    const bufalaEsistente = resultCheck.rows[0];
+    const stmtCheck = db.prepare('SELECT domanda, risposta FROM bufala_giorno WHERE data = ?');
+    const bufalaEsistente = stmtCheck.get(oggi);
 
     if (bufalaEsistente) {
       return res.json({
@@ -245,10 +232,8 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
     const pulito = testo.replace(/```json|```/g, '').trim();
     const dataJSON = JSON.parse(pulito);
 
-    await db.execute({
-      sql: 'INSERT OR REPLACE INTO bufala_giorno (data, domanda, risposta) VALUES (?, ?, ?)',
-      args: [oggi, dataJSON.domanda, dataJSON.risposta]
-    });
+    const stmtInsert = db.prepare('INSERT OR REPLACE INTO bufala_giorno (data, domanda, risposta) VALUES (?, ?, ?)');
+    stmtInsert.run(oggi, dataJSON.domanda, dataJSON.risposta);
 
     res.json({
       data: oggi,
@@ -265,63 +250,44 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
   }
 });
 
-// API: Recupero Classifica da Turso
-app.get('/api/classifica', async (req, res) => {
+// API: Recupero Classifica da SQLite
+app.get('/api/classifica', (req, res) => {
   try {
-    const result = await db.execute('SELECT * FROM bufale ORDER BY voti DESC, id DESC LIMIT 30');
-    res.json(result.rows);
+    const stmt = db.prepare('SELECT * FROM bufale ORDER BY voti DESC, id DESC LIMIT 30');
+    const topBufale = stmt.all();
+    res.json(topBufale);
   } catch (error) {
     console.error("Errore recupero classifica:", error);
     res.status(500).json({ error: 'Errore nel recupero della classifica.' });
   }
 });
 
-// API: Voto o Candidatura Bufala su Turso
-app.post('/api/classifica/vota', limiterVoti, async (req, res) => {
+// API: Voto o Candidatura Bufala su SQLite
+app.post('/api/classifica/vota', limiterVoti, (req, res) => {
   const { id, domanda, risposta, carattere = 'auto', argomento = 'Costume & Società' } = req.body;
 
   try {
     if (id) {
-      await db.execute({
-        sql: 'UPDATE bufale SET voti = voti + 1 WHERE id = ?',
-        args: [id]
-      });
-      const result = await db.execute({
-        sql: 'SELECT voti FROM bufale WHERE id = ?',
-        args: [id]
-      });
-      const bufalaAggiornata = result.rows[0];
+      const stmt = db.prepare('UPDATE bufale SET voti = voti + 1 WHERE id = ?');
+      stmt.run(id);
+      const bufalaAggiornata = db.prepare('SELECT voti FROM bufale WHERE id = ?').get(id);
       return res.json({ success: true, voti: bufalaAggiornata ? bufalaAggiornata.voti : 1 });
     }
 
     if (domanda && risposta) {
-      const checkResult = await db.execute({
-        sql: 'SELECT id, voti FROM bufale WHERE domanda = ? AND risposta = ?',
-        args: [domanda, risposta]
-      });
-      const esistente = checkResult.rows[0];
+      const checkStmt = db.prepare('SELECT id, voti FROM bufale WHERE domanda = ? AND risposta = ?');
+      const esistente = checkStmt.get(domanda, risposta);
 
       if (esistente) {
-        await db.execute({
-          sql: 'UPDATE bufale SET voti = voti + 1 WHERE id = ?',
-          args: [esistente.id]
-        });
-        const aggiornataResult = await db.execute({
-          sql: 'SELECT * FROM bufale WHERE id = ?',
-          args: [esistente.id]
-        });
-        return res.json({ success: true, bufala: aggiornataResult.rows[0] });
+        const updateStmt = db.prepare('UPDATE bufale SET voti = voti + 1 WHERE id = ?');
+        updateStmt.run(esistente.id);
+        const aggiornata = db.prepare('SELECT * FROM bufale WHERE id = ?').get(esistente.id);
+        return res.json({ success: true, bufala: aggiornata });
       } else {
-        const insertResult = await db.execute({
-          sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, 1)',
-          args: [domanda, risposta, carattere, argomento]
-        });
-        const nuovaId = Number(insertResult.lastInsertRowid);
-        const nuovaResult = await db.execute({
-          sql: 'SELECT * FROM bufale WHERE id = ?',
-          args: [nuovaId]
-        });
-        return res.json({ success: true, bufala: nuovaResult.rows[0] });
+        const insertStmt = db.prepare('INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, 1)');
+        const info = insertStmt.run(domanda, risposta, carattere, argomento);
+        const nuovaBufala = db.prepare('SELECT * FROM bufale WHERE id = ?').get(info.lastInsertRowid);
+        return res.json({ success: true, bufala: nuovaBufala });
       }
     }
 
@@ -332,25 +298,24 @@ app.post('/api/classifica/vota', limiterVoti, async (req, res) => {
   }
 });
 
-// API: Calcolo Dinamico dei Trend della Disinformazione per ARGOMENTO
-app.get('/api/stats/trends', async (req, res) => {
+// NEW API: Calcolo Dinamico dei Trend della Disinformazione per ARGOMENTO
+app.get('/api/stats/trends', (req, res) => {
   try {
-    const totalResult = await db.execute('SELECT COUNT(*) as total FROM bufale');
-    const totalRow = totalResult.rows[0];
+    const totalRow = db.prepare('SELECT COUNT(*) as total FROM bufale').get();
     const total = totalRow ? totalRow.total : 0;
 
     if (total === 0) {
       return res.json({ success: true, total: 0, trends: [] });
     }
 
-    const rowsResult = await db.execute(`
+    const rows = db.prepare(`
       SELECT argomento, COUNT(*) as count 
       FROM bufale 
       GROUP BY argomento 
       ORDER BY count DESC
-    `);
+    `).all();
 
-    const trends = rowsResult.rows.map(row => {
+    const trends = rows.map(row => {
       const percentage = Math.round((row.count / total) * 100);
       return {
         categoria: row.argomento || 'Generale',
@@ -369,3 +334,5 @@ app.get('/api/stats/trends', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server FakeGPT attivo su http://localhost:${PORT}`);
 });
+
+
