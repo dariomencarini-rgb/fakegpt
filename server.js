@@ -222,6 +222,17 @@ Domanda dell'utente: "${domanda}"`;
 
 
 
+// API: Recupero Storico di tutte le Bufale del Giorno
+app.get('/api/bufale-giorno-storico', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT data, domanda, risposta FROM bufala_giorno ORDER BY rowid DESC');
+    res.json({ success: true, bufale: result.rows });
+  } catch (error) {
+    console.error("Errore nel recupero dello storico delle bufale del giorno:", error);
+    res.status(500).json({ error: "Errore nel recupero dello storico." });
+  }
+});
+
 // API: Bufala del Giorno (Crea la bufala solo se non esiste per oggi)
 app.get('/api/bufala-del-giorno', async (req, res) => {
   const oggi = new Date().toLocaleDateString('it-IT');
@@ -372,6 +383,18 @@ app.get('/api/stats/trends', async (req, res) => {
     res.status(500).json({ error: "Errore nel calcolo dei trend." });
   }
 });
+
+// API: Recupero di tutte le bufale del giorno storiche
+app.get('/api/bufale-giorno-storico', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT data, domanda, risposta FROM bufala_giorno ORDER BY data DESC');
+    res.json({ success: true, bufale: result.rows });
+  } catch (error) {
+    console.error("Errore nel recupero dello storico delle bufale del giorno:", error);
+    res.status(500).json({ error: "Errore nel recupero dello storico." });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server FakeGPT attivo su http://localhost:${PORT}`);
