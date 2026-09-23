@@ -142,7 +142,7 @@ async function chiamaGeminiConRetry(prompt, retries = 3, delay = 1000) {
         model: 'models/gemini-3.5-flash-lite', 
         contents: prompt,
         config: {
-          temperature: 1.25, // Più alto è, più le risposte saranno varie e imprevedibili
+          temperature: 1.1, // Più alto è, più le risposte saranno varie e imprevedibili
         }
       });
       return response.text;
