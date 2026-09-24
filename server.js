@@ -158,13 +158,36 @@ async function chiamaGeminiConRetry(prompt, retries = 3, delay = 1000) {
   }
 }
 
+
+
 // API: Generazione risposta Fake
 app.post('/api/fake-answer', limiterGenerazione, async (req, res) => {
-  const { domanda, carattere } = req.body;
+  let { domanda, carattere } = req.body;
 
   if (!domanda) {
     return res.status(400).json({ error: 'Domanda mancante.' });
   }
+
+  // Se il carattere è 'auto' o non è specificato, ne peschiamo uno casuale 
+  // tra le personalità disponibili (escludendo 'auto')
+  if (!carattere || carattere === 'auto') {
+    const chiaviPersonalita = Object.keys(istruzioniCarattere).filter(k => k !== 'auto');
+    const randomIndex = Math.floor(Math.random() * chiaviPersonalita.length);
+    carattere = chiaviPersonalita[randomIndex];
+  }
+
+  // DETTAGLI CARATTERE
+
+  const dettagliCaratteri = {
+    auto: { nome: "Automatico", icona: "🤖" },
+    accademico: { nome: "Accademico & Solenne", icona: "🎓" },
+    insolente: { nome: "Insolente & Sferzante", icona: "😏" },
+    burocratico: { nome: "Burocratico & Cavilloso", icona: "📋" },
+    complottista: { nome: "Complottista & Rivelatore", icona: "🛸" },
+    poeta_tragico: { nome: "Poeta Tragico", icona: "📜" },
+    tech_guru: { nome: "Tech Guru", icona: "💻" },
+    nonno_confuso: { nome: "Nonno Confuso", icona: "👴" }
+  };
 
   const stileSelezionato = istruzioniCarattere[carattere] || istruzioniCarattere.auto;
 
@@ -191,7 +214,7 @@ Regole fondamentali:
 12. Non usare mai risposte che possano violare la legge
 13. Se vengono utilizzate parolacce nella domanda, rispondi in maniera ironica di moderare il linguaggio
 14. Inserisci occasionalmente citazioni stravolte di film cult, brani musicali famosi o proverbi storici storpiati.
-15 Adotta questo stile di risposta: ${stileSelezionato}
+15. Adotta questo stile di risposta: ${stileSelezionato}
 
 Devi restituire il risultato ESCLUSIVAMENTE in formato JSON valido con questa struttura:
 {
@@ -206,9 +229,18 @@ Domanda dell'utente: "${domanda}"`;
     const pulito = rawText.replace(/```json|```/g, '').trim();
     const dataJSON = JSON.parse(pulito);
 
+
+    // Recuperiamo il nome esteso e l'icona dal dizionario (con fallback di sicurezza)
+    const infoCarattere = dettagliCaratteri[carattere] || { nome: carattere, icona: "🎭" };
+
+    // Componiamo il testo con l'icona prima del nome del carattere
+    const rispostaFormattata = `${dataJSON.risposta}\n\nTi ha risposto: ${infoCarattere.icona} ${infoCarattere.nome}`;
+
+    // Restituiamo anche il campo 'carattere' (aggiornato con quello effettivo scelto o estratto)
     res.json({
-      risposta: dataJSON.risposta,
-      argomento: dataJSON.argomento || 'Costume & Società'
+      risposta: rispostaFormattata,
+      argomento: dataJSON.argomento || 'Costume & Società',
+      carattere: carattere
     });
   } catch (error) {
     console.error("Errore chiamata Gemini o parsing JSON:", error);
@@ -216,14 +248,16 @@ Domanda dell'utente: "${domanda}"`;
     if (error.status === 429 || (error.error && error.error.code === 429)) {
       return res.json({
         risposta: "⚠️ Abbiamo generato troppe bufale al minuto e l'intelligenza artificiale ha esaurito i neuroni fittizi! Riprova tra un minuto.",
-        argomento: "Generale"
+        argomento: "Generale",
+        carattere: carattere
       });
     }
 
     if (error.status === 503 || (error.error && error.error.code === 503)) {
       return res.json({
         risposta: "I server di FakeGPT sono attualmente intasati da troppe bufale contemporanee! L'algoritmo sta prendendo un caffè fittizio. Riprova tra pochissimi secondi.",
-        argomento: "Generale"
+        argomento: "Generale",
+        carattere: carattere
       });
     }
 
