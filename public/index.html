@@ -153,7 +153,7 @@
           <option value="accademico">🎓 Accademico & Solenne</option>
           <option value="insolente">😏 Insolente & Sferzante</option>
           <option value="burocratico">📑 Burocratico & Cavilloso</option>
-          <option value="complottista">👁️ Complottista & Rivelatore</option>
+          <option value="complottista">🕵️‍♂️ Complottista & Rivelatore</option>
           <!-- NUOVI CARATTERI AGGIUNTI -->
           <option value="poeta_tragico">📜 Poeta Tragico</option>
           <option value="tech_guru">💻 Tech Guru</option>
@@ -875,8 +875,15 @@
       generaRispostaFake(new Event('submit'));
     }
 
-    async function generaRispostaFake(e) {
+// Variabile globale per evitare invii multipli (se non l'hai già definita altrove)
+let isGenerating = false;
+
+async function generaRispostaFake(e) {
       e.preventDefault();
+
+      // Se c'è già una generazione in corso, blocca ulteriori click
+      if (isGenerating) return;
+
       const domandaInput = document.getElementById('domandaInput');
       const carattereSelect = document.getElementById('carattereSelect');
       const btnCandida = document.getElementById('btnCandida');
@@ -884,6 +891,9 @@
       const domanda = domandaInput.value.trim();
       const carattere = carattereSelect.value;
       if (!domanda) return;
+
+      // Attiva il blocco
+      isGenerating = true;
 
       const loading = document.getElementById('loading');
       const rispostaContainer = document.getElementById('rispostaContainer');
@@ -924,12 +934,12 @@
           rispostaContainer.classList.add('opacity-100', 'translate-y-0');
         }, 10);
 
-        if (data.risposta) {
+        if (res.ok && data.risposta) {
           ultimaDomanda = domanda;
           ultimaRisposta = data.risposta;
           await scriviTestoMacchina(testoRisposta, data.risposta, 18);
         } else {
-          testoRisposta.textContent = "Errore durante il recupero della bufala.";
+          testoRisposta.textContent = data.error || "Errore durante il recupero della bufala.";
         }
       } catch (err) {
         console.error(err);
@@ -941,8 +951,12 @@
           rispostaContainer.classList.add('opacity-100', 'translate-y-0');
         }, 10);
         testoRisposta.textContent = "Impossibile connettersi al server delle risposte fake. Assicurati che 'server.js' sia avviato!";
+      } finally {
+        // Rilascia il blocco in modo che l'utente possa generare una nuova risposta
+        isGenerating = false;
       }
     }
+
 
     async function candidaBufalaCorrente() {
       const btn = document.getElementById('btnCandida');
