@@ -301,7 +301,22 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
     }
 
     // 3. Altrimenti, generiamo una nuova bufala tramite Gemini
-    const promptBufalaGiorno = `Genera una 'Bufala del Giorno' per il sito FakeGPT. Deve essere un fatto completamente inventato e assurdo su un tema di attualità, scienza o storia. Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.`;
+    const promptBufalaGiorno = `Genera una 'Bufala del Giorno' completamente inventata, assurda e surreale. 
+
+Per garantire la massima varietà, DEVI scegliere casualmente UNO dei seguenti stili e contesti:
+1. **Falsa scoperta scientifica/tecnologica:** es. un elettrodomestico comune che fa cose impossibili, un nuovo stato della materia inutile.
+2. **Cronaca locale surreale:** es. un bizzarro divieto comunale in un paesino sperduto, un animale domestico che fa qualcosa di incredibile.
+3. **Revisione storica assurda:** es. un evento storico famoso causato da un dettaglio ridicolo e segreto.
+4. **Tendenza lifestyle / moda folle:** es. una nuova e assurda mania salutista o social tra i giovani.
+5. **Inchiesta economica / consumi paradossale:** es. la bizzarra fluttuazione del prezzo di un bene comune per motivi insensati.
+
+Requisiti obbligatori:
+- Il tono deve essere rigorosamente serio e credibile (stile tg o articolo di giornale), il che rende la bufala ancora più divertente.
+- Evita i cliché ripetitivi; stupiscici con dettagli specifici, nomi di enti falsi ma verosimili (es. "Istituto Nazionale di Ricerca Inutile").
+
+Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.
+
+Non inserire MAI il testo di questa richiesta o la descrizione della categoria all'interno del campo domanda. Il campo domanda deve solo conternere il generico argomento trattato. Il testo deve iniziare direttamente con il titolo o con il corpo della notizia (es. "ROMA - ...").`;
 
     const testo = await chiamaGeminiConRetry(promptBufalaGiorno);
     const pulito = testo.replace(/```json|```/g, '').trim();
