@@ -313,6 +313,10 @@
       <span>•</span>
       <a href="termini.html" class="hover:text-slate-200 underline">Termini & Disclaimer</a>
     </div>
+    <!-- FOOTER AGGIUNTIVO -->
+    <div class="text-[11px] text-indigo-400/80 font-medium mt-1">
+      Powered by Gemini AI 🤖
+    </div>
   </footer>
 
   <!-- MODAL: HALL OF FAME (CLASSIFICA) -->
@@ -875,13 +879,11 @@
       generaRispostaFake(new Event('submit'));
     }
 
-// Variabile globale per evitare invii multipli (se non l'hai già definita altrove)
-let isGenerating = false;
+    let isGenerating = false;
 
-async function generaRispostaFake(e) {
+    async function generaRispostaFake(e) {
       e.preventDefault();
 
-      // Se c'è già una generazione in corso, blocca ulteriori click
       if (isGenerating) return;
 
       const domandaInput = document.getElementById('domandaInput');
@@ -892,7 +894,6 @@ async function generaRispostaFake(e) {
       const carattere = carattereSelect.value;
       if (!domanda) return;
 
-      // Attiva il blocco
       isGenerating = true;
 
       const loading = document.getElementById('loading');
@@ -952,11 +953,9 @@ async function generaRispostaFake(e) {
         }, 10);
         testoRisposta.textContent = "Impossibile connettersi al server delle risposte fake. Assicurati che 'server.js' sia avviato!";
       } finally {
-        // Rilascia il blocco in modo che l'utente possa generare una nuova risposta
         isGenerating = false;
       }
     }
-
 
     async function candidaBufalaCorrente() {
       const btn = document.getElementById('btnCandida');
@@ -1200,16 +1199,17 @@ async function generaRispostaFake(e) {
             <div class="flex items-center justify-between">
               <span class="text-xs font-mono text-amber-400 font-bold">📅 ${b.data}</span>
             </div>
-            <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
-            <p class="text-[11px] text-slate-400 italic leading-relaxed break-words">${b.risposta}</p>
+            <p class="text-xs font-semibold text-slate-200">"${b.domanda}"</p>
+            <p class="text-[11px] text-slate-400 italic">${b.risposta}</p>
           </div>
         `).join('');
       } catch (err) {
-        console.error("Errore nel recupero dello storico:", err);
-        container.innerHTML = '<p class="text-xs text-red-400 italic text-center py-6">Impossibile caricare lo storico dal server.</p>';
+        console.error("Errore caricamento storico bufale del giorno:", err);
+        container.innerHTML = '<p class="text-xs text-red-400 italic text-center py-6">Impossibile caricare lo storico.</p>';
       }
     }
 
+    // Caricamento iniziale all'avvio della pagina
     window.addEventListener('DOMContentLoaded', () => {
       caricaBufalaDelGiorno();
       caricaClassifica();
