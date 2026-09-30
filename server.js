@@ -314,6 +314,8 @@ Per garantire la massima varietà, DEVI scegliere casualmente UNO dei seguenti s
 Requisiti obbligatori:
 - Il tono deve essere rigorosamente serio e credibile (stile tg o articolo di giornale), il che rende la bufala ancora più divertente.
 - Evita i cliché ripetitivi; stupiscici con dettagli specifici, nomi di enti falsi ma verosimili (es. "Istituto Nazionale di Ricerca Inutile").
+- Modifica ogni volta l'incipit evitando di cominciare sempre con la stessa frase
+- Modifica ogni volta il luogo dal quale proviene la bufala
 
 Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.
 
