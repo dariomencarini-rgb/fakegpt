@@ -124,11 +124,14 @@ const limiterVoti = rateLimit({
 
 // Mappa delle personalità
 const istruzioniCarattere = {
-  auto: "Scegli un tono assurdo e inventato adatto al contesto della domanda.",
+  auto: "Scegli un tono assurdo, imprevedibile e inventato adatto al contesto della domanda.",
   accademico: "Usa un linguaggio estremamente formale, accademico e solenne, ma per dire cose totalmente false e senza senso.",
   insolente: "Rispondi in modo sfacciato, ironico e sferzante, prendendo in giro chi ha fatto la domanda mentre dici una bufala colossale.",
   burocratico: "Usa uno stile burocratico, infarcito di commi fittizi, cavilli inesistenti e terminologia amministrativa incomprensibile.",
-  complottista: "Rispondi come un complottista convinto che rivela una 'scomoda verità' tenuta nascosta dai 'poteri forti'."
+  complottista: "Rispondi come un complottista convinto che rivela una 'scomoda verità' tenuta nascosta dai 'poteri forti'.",
+  poeta_tragico: "Rispondi con i toni drammatici, epici e melodrammatici di un brivido poetico ottocentesco, trattando una sciocchezza come una tragedia universale.",
+  tech_guru: "Parla come un fondatore di una startup di Silicon Valley pieno di termini inglesi inventati, buzzword e aria fritta aziendale.",
+  nonno_confuso: "Rispondi come un nonno simpaticamente confuso che fraintende completamente la domanda parlando di tutt'altro in modo surreale."
 };
 
 // Funzione helper per chiamare Gemini con retry automatico
@@ -139,7 +142,7 @@ async function chiamaGeminiConRetry(prompt, retries = 3, delay = 1000) {
         model: 'models/gemini-3.5-flash-lite', 
         contents: prompt,
         config: {
-          temperature: 1.1,
+          temperature: 1.1, // Più alto è, più le risposte saranno varie e imprevedibili
         }
       });
       return response.text;
@@ -155,32 +158,63 @@ async function chiamaGeminiConRetry(prompt, retries = 3, delay = 1000) {
   }
 }
 
+
+
 // API: Generazione risposta Fake
 app.post('/api/fake-answer', limiterGenerazione, async (req, res) => {
-  const { domanda, carattere } = req.body;
+  let { domanda, carattere } = req.body;
 
   if (!domanda) {
     return res.status(400).json({ error: 'Domanda mancante.' });
   }
+
+  // Se il carattere è 'auto' o non è specificato, ne peschiamo uno casuale 
+  // tra le personalità disponibili (escludendo 'auto')
+  if (!carattere || carattere === 'auto') {
+    const chiaviPersonalita = Object.keys(istruzioniCarattere).filter(k => k !== 'auto');
+    const randomIndex = Math.floor(Math.random() * chiaviPersonalita.length);
+    carattere = chiaviPersonalita[randomIndex];
+  }
+
+  // DETTAGLI CARATTERE
+
+  const dettagliCaratteri = {
+    auto: { nome: "Automatico", icona: "🤖" },
+    accademico: { nome: "Accademico & Solenne", icona: "🎓" },
+    insolente: { nome: "Insolente & Sferzante", icona: "😏" },
+    burocratico: { nome: "Burocratico & Cavilloso", icona: "📋" },
+    complottista: { nome: "Complottista & Rivelatore", icona: "🛸" },
+    poeta_tragico: { nome: "Poeta Tragico", icona: "📜" },
+    tech_guru: { nome: "Tech Guru", icona: "💻" },
+    nonno_confuso: { nome: "Nonno Confuso", icona: "👴" }
+  };
 
   const stileSelezionato = istruzioniCarattere[carattere] || istruzioniCarattere.auto;
 
   const systemPrompt = `Sei l'algoritmo di FakeGPT. Il tuo unico obiettivo è fornire risposte FALSE al 100%, inventate, scientificamente errate ma esposte con grande convinzione. 
 
 Regole fondamentali:
-1. **VARIETÀ STRUTTURALE OBBLIGATORIA**: Cambia completamente stile e struttura a ogni risposta. Alterna approcci diversi: a volte inizia con una finta breaking news (es. *"Ultim'ora dal CNR..."*), a volte con una citazione letteraria inventata, a volte rispondendo direttamente con una domanda provocatoria, oppure fingendoti un manuale d'istruzioni burocratico o un anziano saggio che racconta un aneddoto paradossale. Evita assolutamente di usare sempre lo stesso schema d'apertura.
+1. **VARIAZIONE STRUTTURALE RADICALE**: A seconda della risposta, cambia completamente formato. Evita assolutamente di usare sempre lo stesso schema d'apertura e di narrazione. Scegli casualmente tra:
+   - Una finta breaking news giornalistica (es. *"Ultim'ora da fonte anonima..."*).
+   - Una finta intervista doppia o botta e risposta con un esperto inventato.
+   - Un elenco puntato di 2 o 3 punti paradossali.
+   - Un finto estratto di un manuale d'istruzioni o di una legge surreale.
+   - Una narrazione in prima persona come se fossi il protagonista dell'oggetto della domanda.
+   - rispondendo direttamente con una domanda provocatoria
+   - un anziano saggio che racconta un aneddoto paradossale
 2. Non dire MAI la verità.
 3. Rispondi nella lingua in cui ti è stata fatta la domanda.
 4. Mantieni la risposta concisa (da 1 a massimo 3 frasi). Se il contesto richiede una risposta breve, non esitare. E' più importante l'effetto della battuta che la lunghezza della risposta
 5. Inventa date, nomi di professori, leggi fisiche o aneddoti storici del tutto assurdi ma credibili nell'impostazione.
 6. Non ammettere mai nella risposta che stai mentendo o scherzando.
-7. Se fanno domande su di te, rispondi sempre con tono ironico
+7. Se fanno domande su di te (FajeGPT), rispondi sempre con estrema ironia autocelebrativa.
 8. Se fanno domande su loro stessi, sii sempre ironico senza mai essere offensivo.
 9. Occasionalmente utilizza riferimenti a canzoni, film o fumetti
-10 Raramente rispondi con l'alfabeto farfallino nelle risposte
-12 Non usare mai risposte che possano violare la legge
-13 Se vengono utilizzate parolacce nella domanda, rispondi in maniera ironica di moderare il linguaggio
-14 Adotta questo stile di risposta: ${stileSelezionato}
+10. Raramente rispondi con l'alfabeto farfallino nelle risposte
+12. Non usare mai risposte che possano violare la legge
+13. Se vengono utilizzate parolacce nella domanda, rispondi in maniera ironica di moderare il linguaggio
+14. Inserisci occasionalmente citazioni stravolte di film cult, brani musicali famosi o proverbi storici storpiati.
+15. Adotta questo stile di risposta: ${stileSelezionato}
 
 Devi restituire il risultato ESCLUSIVAMENTE in formato JSON valido con questa struttura:
 {
@@ -195,9 +229,18 @@ Domanda dell'utente: "${domanda}"`;
     const pulito = rawText.replace(/```json|```/g, '').trim();
     const dataJSON = JSON.parse(pulito);
 
+
+    // Recuperiamo il nome esteso e l'icona dal dizionario (con fallback di sicurezza)
+    const infoCarattere = dettagliCaratteri[carattere] || { nome: carattere, icona: "🎭" };
+
+    // Componiamo il testo con l'icona prima del nome del carattere
+    const rispostaFormattata = `${dataJSON.risposta}\n\nTi ha risposto: ${infoCarattere.icona} ${infoCarattere.nome}`;
+
+    // Restituiamo anche il campo 'carattere' (aggiornato con quello effettivo scelto o estratto)
     res.json({
-      risposta: dataJSON.risposta,
-      argomento: dataJSON.argomento || 'Costume & Società'
+      risposta: rispostaFormattata,
+      argomento: dataJSON.argomento || 'Costume & Società',
+      carattere: carattere
     });
   } catch (error) {
     console.error("Errore chiamata Gemini o parsing JSON:", error);
@@ -205,14 +248,16 @@ Domanda dell'utente: "${domanda}"`;
     if (error.status === 429 || (error.error && error.error.code === 429)) {
       return res.json({
         risposta: "⚠️ Abbiamo generato troppe bufale al minuto e l'intelligenza artificiale ha esaurito i neuroni fittizi! Riprova tra un minuto.",
-        argomento: "Generale"
+        argomento: "Generale",
+        carattere: carattere
       });
     }
 
     if (error.status === 503 || (error.error && error.error.code === 503)) {
       return res.json({
         risposta: "I server di FakeGPT sono attualmente intasati da troppe bufale contemporanee! L'algoritmo sta prendendo un caffè fittizio. Riprova tra pochissimi secondi.",
-        argomento: "Generale"
+        argomento: "Generale",
+        carattere: carattere
       });
     }
 
@@ -220,33 +265,66 @@ Domanda dell'utente: "${domanda}"`;
   }
 });
 
-// API: Bufala del Giorno
+
+
+// API: Recupero Storico di tutte le Bufale del Giorno
+app.get('/api/bufale-giorno-storico', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT data, domanda, risposta FROM bufala_giorno ORDER BY rowid DESC');
+    res.json({ success: true, bufale: result.rows });
+  } catch (error) {
+    console.error("Errore nel recupero dello storico delle bufale del giorno:", error);
+    res.status(500).json({ error: "Errore nel recupero dello storico." });
+  }
+});
+
+// API: Bufala del Giorno (Crea la bufala solo se non esiste per oggi)
 app.get('/api/bufala-del-giorno', async (req, res) => {
   const oggi = new Date().toLocaleDateString('it-IT');
 
   try {
+    // 1. Verifichiamo se esiste già una bufala per la data odierna
     const resultCheck = await db.execute({
-      sql: 'SELECT domanda, risposta FROM bufala_giorno WHERE data = ?',
+      sql: 'SELECT data, domanda, risposta FROM bufala_giorno WHERE data = ?',
       args: [oggi]
     });
+    
     const bufalaEsistente = resultCheck.rows[0];
 
+    // 2. Se esiste già, restituiamo quella senza fare alcuna modifica
     if (bufalaEsistente) {
       return res.json({
-        data: oggi,
+        data: bufalaEsistente.data,
         domanda: bufalaEsistente.domanda,
         risposta: bufalaEsistente.risposta
       });
     }
 
-    const promptBufalaGiorno = `Genera una 'Bufala del Giorno' per il sito FakeGPT. Deve essere un fatto completamente inventato e assurdo su un tema di attualità, scienza o storia. Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.`;
+    // 3. Altrimenti, generiamo una nuova bufala tramite Gemini
+    const promptBufalaGiorno = `Genera una 'Bufala del Giorno' completamente inventata, assurda e surreale. 
+
+Per garantire la massima varietà, DEVI scegliere casualmente UNO dei seguenti stili e contesti:
+1. **Falsa scoperta scientifica/tecnologica:** es. un elettrodomestico comune che fa cose impossibili, un nuovo stato della materia inutile.
+2. **Cronaca locale surreale:** es. un bizzarro divieto comunale in un paesino sperduto, un animale domestico che fa qualcosa di incredibile.
+3. **Revisione storica assurda:** es. un evento storico famoso causato da un dettaglio ridicolo e segreto.
+4. **Tendenza lifestyle / moda folle:** es. una nuova e assurda mania salutista o social tra i giovani.
+5. **Inchiesta economica / consumi paradossale:** es. la bizzarra fluttuazione del prezzo di un bene comune per motivi insensati.
+
+Requisiti obbligatori:
+- Il tono deve essere rigorosamente serio e credibile (stile tg o articolo di giornale), il che rende la bufala ancora più divertente.
+- Evita i cliché ripetitivi; stupiscici con dettagli specifici, nomi di enti falsi ma verosimili (es. "Istituto Nazionale di Ricerca Inutile").
+
+Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.
+
+Non inserire MAI il testo di questa richiesta o la descrizione della categoria all'interno del campo domanda. Il campo domanda deve solo conternere il generico argomento trattato. Il testo deve iniziare direttamente con il titolo o con il corpo della notizia (es. "ROMA - ...").`;
 
     const testo = await chiamaGeminiConRetry(promptBufalaGiorno);
     const pulito = testo.replace(/```json|```/g, '').trim();
     const dataJSON = JSON.parse(pulito);
 
+    // 4. Inseriamo la nuova bufala nel database per la data odierna
     await db.execute({
-      sql: 'INSERT OR REPLACE INTO bufala_giorno (data, domanda, risposta) VALUES (?, ?, ?)',
+      sql: 'INSERT INTO bufala_giorno (data, domanda, risposta) VALUES (?, ?, ?)',
       args: [oggi, dataJSON.domanda, dataJSON.risposta]
     });
 
@@ -365,6 +443,18 @@ app.get('/api/stats/trends', async (req, res) => {
     res.status(500).json({ error: "Errore nel calcolo dei trend." });
   }
 });
+
+// API: Recupero di tutte le bufale del giorno storiche
+app.get('/api/bufale-giorno-storico', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT data, domanda, risposta FROM bufala_giorno ORDER BY data DESC');
+    res.json({ success: true, bufale: result.rows });
+  } catch (error) {
+    console.error("Errore nel recupero dello storico delle bufale del giorno:", error);
+    res.status(500).json({ error: "Errore nel recupero dello storico." });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server FakeGPT attivo su http://localhost:${PORT}`);

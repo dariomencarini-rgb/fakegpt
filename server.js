@@ -40,6 +40,7 @@ async function initDb() {
     // Migration automatica per colonne (se mancano)
     try { await db.execute(`ALTER TABLE bufale ADD COLUMN carattere TEXT DEFAULT 'auto'`); } catch (e) {}
     try { await db.execute(`ALTER TABLE bufale ADD COLUMN argomento TEXT DEFAULT 'Generale'`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE bufale ADD COLUMN sponsor TEXT DEFAULT 'Anonimo'`); } catch (e) {}
 
     // Creazione tabella bufala_giorno
     await db.execute(`
@@ -354,9 +355,9 @@ app.get('/api/classifica', async (req, res) => {
   }
 });
 
-// API: Voto o Candidatura Bufala su Turso
+// API: Voto o Candidatura Bufala su Turso (Aggiornato con supporto sponsor)
 app.post('/api/classifica/vota', limiterVoti, async (req, res) => {
-  const { id, domanda, risposta, carattere = 'auto', argomento = 'Costume & Società' } = req.body;
+  const { id, domanda, risposta, carattere = 'auto', argomento = 'Costume & Società', sponsor = 'Anonimo' } = req.body;
 
   try {
     if (id) {
@@ -391,8 +392,8 @@ app.post('/api/classifica/vota', limiterVoti, async (req, res) => {
         return res.json({ success: true, bufala: aggiornataResult.rows[0] });
       } else {
         const insertResult = await db.execute({
-          sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, 1)',
-          args: [domanda, risposta, carattere, argomento]
+          sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti, sponsor) VALUES (?, ?, ?, ?, 1, ?)',
+          args: [domanda, risposta, carattere, argomento, sponsor || 'Anonimo']
         });
         const nuovaId = Number(insertResult.lastInsertRowid);
         const nuovaResult = await db.execute({
