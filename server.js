@@ -143,7 +143,8 @@ async function chiamaGeminiConRetry(prompt, retries = 3, delay = 1000) {
         model: 'models/gemini-3.5-flash-lite', 
         contents: prompt,
         config: {
-          temperature: 1.1, // Più alto è, più le risposte saranno varie e imprevedibili
+          temperature: 0.85, // Più alto è, più le risposte saranno varie e imprevedibili
+          top_p: 0.90,       // Filtra le combinazioni di parole troppo estreme o sgangherate
         }
       });
       return response.text;
@@ -315,7 +316,7 @@ Requisiti obbligatori:
 - Il tono deve essere rigorosamente serio e credibile (stile tg o articolo di giornale), il che rende la bufala ancora più divertente.
 - Evita i cliché ripetitivi; stupiscici con dettagli specifici, nomi di enti falsi ma verosimili (es. "Istituto Nazionale di Ricerca Inutile").
 - Modifica ogni volta l'incipit evitando di cominciare sempre con la stessa frase
-- Modifica ogni volta il luogo dal quale proviene la bufala
+- Modifica ogni volta il luogo dal quale proviene la bufal
 
 Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.
 
