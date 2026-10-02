@@ -62,7 +62,7 @@
         </button>
       </div>
 
-      <!-- Voci di Menu -->
+<!-- Voci di Menu -->
       <nav class="py-6 space-y-2">
         <button onclick="chiudiSidebar(); document.getElementById('domandaInput').focus();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition duration-200 text-left">
           <span>✨</span> Generatore Principale
@@ -70,9 +70,10 @@
         <button onclick="chiudiSidebar(); generaNewsCasualeMenu();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-emerald-500/20 hover:text-emerald-300 transition duration-200 text-left">
           <span>🎲</span> Generatore Casuale
         </button>
-        <button onclick="chiudiSidebar(); apriModalHallOfFame();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-amber-500/20 hover:text-amber-300 transition duration-200 text-left">
+        <!-- HALL OF FAME (PAGINA DEDICATA) -->
+        <a href="hall-of-fame.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-amber-500/20 hover:text-amber-300 transition duration-200 text-left">
           <span>🏆</span> Hall of Fame (Classifica)
-        </button>
+        </a>
         <button onclick="chiudiSidebar(); apriModalTutteLeBufale();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-blue-500/20 hover:text-blue-300 transition duration-200 text-left">
           <span>📚</span> Tutte le bufale candidate
         </button>
@@ -82,14 +83,19 @@
         <button onclick="chiudiSidebar(); apriModalPatentino();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-purple-500/20 hover:text-purple-300 transition duration-200 text-left">
           <span>📜</span> Il Patentino del Bufalaro
         </button>
+        <!-- GLOSSARIO DELLA FUFFA -->
+        <a href="glossario.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-indigo-500/20 hover:text-indigo-300 transition duration-200 text-left">
+          <span>📖</span> Glossario della Fuffa
+        </a>
+        <!-- ARCHIVIO DELLE PERLE -->
+        <a href="archivio-bufale.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-amber-500/20 hover:text-amber-300 transition duration-200 text-left">
+          <span>⭐</span> Archivio delle Perle
+        </a>
         <button onclick="chiudiSidebar(); apriModalStatistiche();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-indigo-500/20 hover:text-indigo-300 transition duration-200 text-left">
           <span>📊</span> Statistiche Generali
         </button>
-        <button onclick="chiudiSidebar(); apriModalStoricoBufale();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-teal-500/20 hover:text-teal-300 transition duration-200 text-left">
-          <span>📅</span> Storico Bufale del Giorno
-        </button>
       </nav>
-    </div>
+
 
     <!-- Footer Sidebar -->
     <div class="pt-6 border-t border-slate-800 text-xs text-slate-500 text-center">
@@ -316,6 +322,8 @@
     </div>
     <div class="space-x-3 text-slate-400">
       <a href="chi-siamo.html" class="hover:text-slate-200 underline">Chi Siamo & Manifesto</a>
+      <span>•</span>
+      <a href="glossario.html" class="hover:text-slate-200 underline text-indigo-400 font-semibold">Glossario della Fuffa</a>
       <span>•</span>
       <a href="privacy.html" class="hover:text-slate-200 underline">Privacy Policy</a>
       <span>•</span>

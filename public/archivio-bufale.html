@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L'Archivio delle Perle - AIquarius</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♒</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.6); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
+
+  <!-- HEADER -->
+  <header class="p-4 flex justify-between items-center border-b border-slate-800 glass-panel sticky top-0 z-50">
+    <a href="index.html" class="flex items-center space-x-2">
+      <span class="text-2xl">♒</span>
+      <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">AIquarius</h1>
+    </a>
+    <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg transition border border-slate-700">
+      ← Torna alla Home
+    </a>
+  </header>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <main class="max-w-3xl w-full mx-auto p-6 flex-grow my-8">
+    
+    <div class="border-b border-slate-800 pb-6 mb-6">
+      <span class="text-xs font-mono uppercase tracking-wider text-amber-400">⭐ Cronologia della Fuffa</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">L'Archivio delle Perle</h2>
+      <p class="text-xs text-slate-400 mt-2">Tutte le Bufale del Giorno passate alla storia (del falso) racchiuse in un'unica imperdibile raccolta.</p>
+    </div>
+
+    <!-- BOX STATISTICHE DIVERTENTI -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+      <div class="glass-panel p-4 rounded-2xl border border-slate-700/60 text-center">
+        <span class="text-xs text-slate-400 font-medium block mb-1">Perle Archiviate</span>
+        <span id="statTotalePerle" class="text-xl font-bold text-amber-400 font-mono">0</span>
+      </div>
+      <div class="glass-panel p-4 rounded-2xl border border-slate-700/60 text-center">
+        <span class="text-xs text-slate-400 font-medium block mb-1">Indice Medio di Falsità</span>
+        <span class="text-xl font-bold text-pink-400 font-mono">100% 🎯</span>
+      </div>
+      <div class="glass-panel p-4 rounded-2xl border border-slate-700/60 text-center">
+        <span class="text-xs text-slate-400 font-medium block mb-1">Attendibilità Scientifica</span>
+        <span class="text-xl font-bold text-indigo-400 font-mono">0.00%</span>
+      </div>
+    </div>
+
+    <!-- BARRA DI RICERCA ISTANTANEA -->
+    <div class="glass-panel p-3 rounded-2xl mb-6 shadow-lg">
+      <div class="relative flex items-center">
+        <span class="absolute left-3 text-slate-400 text-sm">🔍</span>
+        <input 
+          type="text" 
+          id="inputRicercaPerle" 
+          oninput="filtraPerle()" 
+          placeholder="Cerca tra le perle passate (es. gatti, pizza, PIL...)" 
+          class="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        />
+      </div>
+    </div>
+
+    <!-- CONTENITORE DINAMICO ARCHIVIO -->
+    <div id="archivioPerleContainer" class="space-y-4">
+      <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
+        Caricamento delle perle storiche in corso...
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="p-4 text-center text-xs text-slate-500 border-t border-slate-800/80 flex flex-col gap-2 glass-panel">
+    <div>
+      Progetto goliardico. Nessuna informazione presente su questo sito deve essere usata nella vita reale.
+    </div>
+    <div class="space-x-3 text-slate-400">
+      <a href="chi-siamo.html" class="hover:text-slate-200 underline">Chi Siamo & Manifesto</a>
+      <span>•</span>
+      <a href="glossario.html" class="hover:text-slate-200 underline">Glossario della Fuffa</a>
+      <span>•</span>
+      <a href="archivio-bufale.html" class="hover:text-slate-200 underline text-amber-400 font-semibold">Archivio Perle</a>
+      <span>•</span>
+      <a href="privacy.html" class="hover:text-slate-200 underline">Privacy Policy</a>
+      <span>•</span>
+      <a href="termini.html" class="hover:text-slate-200 underline">Termini & Disclaimer</a>
+    </div>
+    <div class="text-[11px] text-indigo-400/80 font-medium mt-1">
+      Powered by Gemini AI 🤖
+    </div>
+  </footer>
+
+  <!-- SCRIPT DI CARICAMENTO E FILTRAGGIO -->
+  <script>
+    let listaBufaleCompleta = [];
+
+    async function caricaArchivioPerle() {
+      const container = document.getElementById('archivioPerleContainer');
+      try {
+        const res = await fetch('/api/bufale-giorno-storico');
+        const data = await res.json();
+        
+        if (!data.success || !data.bufale || data.bufale.length === 0) {
+          container.innerHTML = `
+            <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
+              Nessuna perla archiviata finora. Torna a trovarci domani!
+            </div>`;
+          return;
+        }
+
+        listaBufaleCompleta = data.bufale;
+        
+        // Aggiorna le statistiche dinamiche
+        document.getElementById('statTotalePerle').innerText = listaBufaleCompleta.length;
+
+        mostraPerle(listaBufaleCompleta);
+
+      } catch (err) {
+        console.error("Errore caricamento archivio perle:", err);
+        container.innerHTML = `
+          <div class="glass-panel p-6 rounded-2xl text-center text-red-400 italic text-sm">
+            Impossibile connettersi al server per recuperare le perle. Assicurati che il server sia attivo.
+          </div>`;
+      }
+    }
+
+    function mostraPerle(arrayBufale) {
+      const container = document.getElementById('archivioPerleContainer');
+      
+      if (arrayBufale.length === 0) {
+        container.innerHTML = `
+          <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
+            Nessuna perla corrisponde alla ricerca effettuata.
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = arrayBufale.map(b => `
+        <div class="glass-panel p-5 rounded-2xl border border-slate-700/60 shadow-lg flex flex-col gap-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs font-mono text-amber-400 font-bold flex items-center gap-1.5">
+              📅 ${b.data}
+            </span>
+            <span class="text-[10px] bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/20">
+              100% Falso Garantito
+            </span>
+          </div>
+          <h3 class="text-sm sm:text-base font-bold text-white mt-1">"${b.domanda}"</h3>
+          <p class="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
+            ${b.risposta}
+          </p>
+        </div>
+      `).join('');
+    }
+
+    function filtraPerle() {
+      const query = document.getElementById('inputRicercaPerle').value.toLowerCase().trim();
+      
+      const filtrate = listaBufaleCompleta.filter(b => 
+        b.domanda.toLowerCase().includes(query) || 
+        b.risposta.toLowerCase().includes(query) || 
+        b.data.toLowerCase().includes(query)
+      );
+
+      mostraPerle(filtrate);
+    }
+
+    window.addEventListener('DOMContentLoaded', caricaArchivioPerle);
+  </script>
+</body>
+</html>

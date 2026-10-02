@@ -317,7 +317,7 @@ Requisiti obbligatori:
 - Evita i cliché ripetitivi; stupiscici con dettagli specifici, nomi di enti falsi ma verosimili (es. "Istituto Nazionale di Ricerca Inutile").
 - Modifica ogni volta l'incipit evitando di cominciare sempre con la stessa frase
 - Modifica ogni volta il luogo dal quale proviene la bufala
-- La bufala deve essere di una lunghezza tra le 3 e 6 frasi, non di più
+- La bufala deve essere di una lunghezza tra le 2 e 3 frasi, non di più
 
 Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.
 

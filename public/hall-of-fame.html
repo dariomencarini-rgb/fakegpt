@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hall of Fame - AIquarius</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♒</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
+
+  <!-- HEADER -->
+  <header class="p-4 flex justify-between items-center border-b border-slate-800 glass-panel sticky top-0 z-50">
+    <a href="index.html" class="flex items-center space-x-2">
+      <span class="text-2xl">♒</span>
+      <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">AIquarius</h1>
+    </a>
+    <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg transition border border-slate-700">
+      ← Torna alla Home
+    </a>
+  </header>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <main class="max-w-3xl w-full mx-auto p-6 flex-grow my-8">
+    
+    <div class="border-b border-slate-800 pb-6 mb-6">
+      <span class="text-xs font-mono uppercase tracking-wider text-amber-400">🏆 Il Podio dell'Inattendibilità</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Hall of Fame</h2>
+      <p class="text-xs text-slate-400 mt-2">La classifica ufficiale delle risposte più votate, esilaranti e catastroficamente false generate dalla community[cite: 1].</p>
+    </div>
+
+    <!-- BARRA DI RICERCA -->
+    <div class="glass-panel p-3 rounded-2xl mb-4 shadow-lg">
+      <div class="relative flex items-center">
+        <span class="absolute left-3 text-slate-400 text-sm">🔍</span>
+        <input 
+          type="text" 
+          id="inputRicercaClassifica" 
+          oninput="filtraHallOfFame()" 
+          placeholder="Cerca nella classifica per parola chiave..." 
+          class="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+        />
+      </div>
+    </div>
+
+    <!-- FILTRI PER CATEGORIA -->
+    <div id="filtriContainer" class="flex flex-wrap gap-2 mb-6">
+      <button onclick="selezionaCategoria('Tutti')" class="cat-btn text-xs font-medium px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 transition">Tutti</button>
+    </div>
+
+    <!-- CONTENITORE DINAMICO HALL OF FAME -->
+    <div id="hallOfFameContainer" class="space-y-4">
+      <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
+        Caricamento della classifica in corso...
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="p-4 text-center text-xs text-slate-500 border-t border-slate-800/80 flex flex-col gap-2 glass-panel">
+    <div>
+      Progetto goliardico. Nessuna informazione presente su questo sito deve essere usata nella vita reale.
+    </div>
+    <div class="space-x-3 text-slate-400">
+      <a href="chi-siamo.html" class="hover:text-slate-200 underline">Chi Siamo & Manifesto</a>
+      <span>•</span>
+      <a href="glossario.html" class="hover:text-slate-200 underline">Glossario della Fuffa</a>
+      <span>•</span>
+      <a href="archivio-bufale.html" class="hover:text-slate-200 underline">Archivio Perle</a>
+      <span>•</span>
+      <a href="hall-of-fame.html" class="hover:text-slate-200 underline text-amber-400 font-semibold">Hall of Fame</a>
+      <span>•</span>
+      <a href="privacy.html" class="hover:text-slate-200 underline">Privacy Policy</a>
+      <span>•</span>
+      <a href="termini.html" class="hover:text-slate-200 underline">Termini & Disclaimer</a>
+    </div>
+    <div class="text-[11px] text-indigo-400/80 font-medium mt-1">
+      Powered by Gemini AI 🤖
+    </div>
+  </footer>
+
+  <!-- SCRIPT DI GESTIONE COMPLETA -->
+  <script>
+    let listaCompleta = [];
+    let categoriaSelezionata = 'Tutti';
+
+    async function caricaHallOfFame() {
+      const container = document.getElementById('hallOfFameContainer');
+      try {
+        const res = await fetch('/api/classifica');
+        const data = await res.json();
+        
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML = `
+            <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
+              Nessuna perla in classifica per il momento. Vota la tua prima risposta dalla home!
+            </div>`;
+          return;
+        }
+
+        listaCompleta = data;
+        generaFiltriCategorie(listaCompleta);
+        mostraDatiFiltrati();
+
+      } catch (err) {
+        console.error("Errore caricamento Hall of Fame:", err);
+        container.innerHTML = `
+          <div class="glass-panel p-6 rounded-2xl text-center text-red-400 italic text-sm">
+            Impossibile connettersi al server per recuperare la classifica. Assicurati che il server sia attivo.
+          </div>`;
+      }
+    }
+
+    function generaFiltriCategorie(dati) {
+      const categorie = ['Tutti', ...new Set(dati.map(item => item.argomento || 'Generale'))];
+      const filtriContainer = document.getElementById('filtriContainer');
+      
+      filtriContainer.innerHTML = categorie.map(cat => `
+        <button onclick="selezionaCategoria('${cat}')" class="cat-btn text-xs font-medium px-3 py-1.5 rounded-xl transition ${cat === categoriaSelezionata ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-900/40 text-slate-400 border border-slate-800 hover:bg-slate-800'}">
+          ${cat}
+        </button>
+      `).join('');
+    }
+
+    function selezionaCategoria(cat) {
+      categoriaSelezionata = cat;
+      generaFiltriCategorie(listaCompleta);
+      mostraDatiFiltrati();
+    }
+
+    function mostraDatiFiltrati() {
+      const query = document.getElementById('inputRicercaClassifica').value.toLowerCase().trim();
+      
+      const filtrate = listaCompleta.filter(item => {
+        const matchCat = categoriaSelezionata === 'Tutti' || (item.argomento || 'Generale') === categoriaSelezionata;
+        const matchQuery = item.domanda.toLowerCase().includes(query) || item.risposta.toLowerCase().includes(query);
+        return matchCat && matchQuery;
+      });
+
+      const container = document.getElementById('hallOfFameContainer');
+
+      if (filtrate.length === 0) {
+        container.innerHTML = `
+          <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
+            Nessuna perla corrisponde ai criteri di ricerca.
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = filtrate.map((item, index) => {
+        let medaglia = `#${index + 1}`;
+        let borderColor = "border-slate-700/60";
+        let badgeStyle = "bg-amber-500/10 text-amber-300 border-amber-500/20";
+        
+        if (index === 0 && categoriaSelezionata === 'Tutti' && !query) { 
+          medaglia = "🥇 1° Posto"; 
+          borderColor = "border-amber-500/50 bg-amber-500/10"; 
+        } else if (index === 1 && categoriaSelezionata === 'Tutti' && !query) { 
+          medaglia = "🥈 2° Posto"; 
+          borderColor = "border-slate-400/40 bg-slate-400/5"; 
+        } else if (index === 2 && categoriaSelezionata === 'Tutti' && !query) { 
+          medaglia = "🥉 3° Posto"; 
+          borderColor = "border-amber-700/40 bg-amber-700/5"; 
+        }
+
+        // Gestione dello sponsor (se presente e diverso da vuoto)
+        const sponsorHtml = item.sponsor && item.sponsor !== 'Anonimo' 
+          ? `<div class="text-[11px] text-purple-300/80 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-lg mt-2 inline-flex items-center gap-1.5 font-mono">
+               <span>🤝 Sponsorizzato da:</span> <span class="font-bold text-purple-200">${item.sponsor}</span>
+             </div>`
+          : '';
+
+        return `
+          <div class="glass-panel p-5 rounded-2xl border ${borderColor} shadow-lg flex flex-col gap-2 relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span class="text-xs font-mono text-amber-400 font-bold flex items-center gap-1.5">
+                ${medaglia} <span class="text-[10px] text-slate-400 font-normal ml-2">(${item.argomento || 'Generale'})</span>
+              </span>
+              <div class="flex items-center gap-2">
+                <span id="voti-badge-${item.id}" class="text-[10px] ${badgeStyle} px-2 py-0.5 rounded-full border font-mono">
+                  ⭐ ${item.voti || 0} Voti
+                </span>
+                <button onclick="votaPerla(${item.id})" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/30 transition flex items-center gap-1 font-medium" title="Vota questa perla">
+                  👍 Vota
+                </button>
+              </div>
+            </div>
+            <h3 class="text-sm sm:text-base font-bold text-white mt-1">"${item.domanda}"</h3>
+            <p class="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
+              ${item.risposta}
+            </p>
+            ${sponsorHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filtraHallOfFame() {
+      mostraDatiFiltrati();
+    }
+
+    async function votaPerla(id) {
+      try {
+        const res = await fetch('/api/classifica/vota', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const item = listaCompleta.find(b => b.id === id);
+          if (item) {
+            item.voti = data.voti;
+          }
+          listaCompleta.sort((a, b) => b.voti - a.voti);
+          mostraDatiFiltrati();
+        } else {
+          alert(data.error || "Errore durante la registrazione del voto.");
+        }
+      } catch (err) {
+        console.error("Errore di rete durante il voto:", err);
+        alert("Impossibile comunicare con il server.");
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', caricaHallOfFame);
+  </script>
+</body>
+</html>
