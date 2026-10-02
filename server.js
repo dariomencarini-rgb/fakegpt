@@ -348,14 +348,25 @@ Non inserire MAI il testo di questa richiesta o la descrizione della categoria a
   }
 });
 
-// API: Recupero Classifica da Turso
+// API: Recupero di tutte le Bufale Candidate (Archivio Storico - Senza limiti)
 app.get('/api/classifica', async (req, res) => {
   try {
-    const result = await db.execute('SELECT * FROM bufale ORDER BY voti DESC, id DESC LIMIT 30');
+    const result = await db.execute('SELECT * FROM bufale ORDER BY id DESC');
     res.json(result.rows);
   } catch (error) {
-    console.error("Errore recupero classifica:", error);
-    res.status(500).json({ error: 'Errore nel recupero della classifica.' });
+    console.error("Errore recupero archivio bufale:", error);
+    res.status(500).json({ error: 'Errore nel recupero dell\'archivio.' });
+  }
+});
+
+// API: Recupero Hall of Fame (Top 10 per voti)
+app.get('/api/hall-of-fame', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT * FROM bufale ORDER BY voti DESC, id DESC LIMIT 10');
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore recupero Hall of Fame:", error);
+    res.status(500).json({ error: 'Errore nel recupero della Hall of Fame.' });
   }
 });
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hall of Fame - AIquarius</title>
+  <title>Tutte le Bufale Candidate - AIquarius</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♒</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -33,9 +33,9 @@
   <main class="max-w-3xl w-full mx-auto p-6 flex-grow my-8">
     
     <div class="border-b border-slate-800 pb-6 mb-6">
-      <span class="text-xs font-mono uppercase tracking-wider text-amber-400">🏆 Il Podio dell'Inattendibilità</span>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Hall of Fame</h2>
-      <p class="text-xs text-slate-400 mt-2">La classifica ufficiale delle risposte più votate, esilaranti e catastroficamente false generate dalla community[cite: 1].</p>
+      <span class="text-xs font-mono uppercase tracking-wider text-indigo-400">📚 Archivio Storico</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Bufale Candidate</h2>
+      <p class="text-xs text-slate-400 mt-2">L'elenco completo di tutte le risposte folli e le perle surreali candidate finora dalla community.</p>
     </div>
 
     <!-- BARRA DI RICERCA -->
@@ -44,23 +44,23 @@
         <span class="absolute left-3 text-slate-400 text-sm">🔍</span>
         <input 
           type="text" 
-          id="inputRicercaClassifica" 
-          oninput="filtraHallOfFame()" 
-          placeholder="Cerca nella classifica per parola chiave..." 
-          class="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+          id="inputRicercaBufale" 
+          oninput="filtraBufale()" 
+          placeholder="Cerca tra le bufale candidate..." 
+          class="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         />
       </div>
     </div>
 
     <!-- FILTRI PER CATEGORIA -->
     <div id="filtriContainer" class="flex flex-wrap gap-2 mb-6">
-      <button onclick="selezionaCategoria('Tutti')" class="cat-btn text-xs font-medium px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 transition">Tutti</button>
+      <button onclick="selezionaCategoria('Tutti')" class="cat-btn text-xs font-medium px-3 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 transition">Tutti</button>
     </div>
 
-    <!-- CONTENITORE DINAMICO HALL OF FAME -->
-    <div id="hallOfFameContainer" class="space-y-4">
+    <!-- CONTENITORE DINAMICO -->
+    <div id="bufaleContainer" class="space-y-4">
       <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
-        Caricamento della classifica in corso...
+        Caricamento delle bufale in corso...
       </div>
     </div>
 
@@ -76,9 +76,9 @@
       <span>•</span>
       <a href="glossario.html" class="hover:text-slate-200 underline">Glossario della Fuffa</a>
       <span>•</span>
-      <a href="archivio-bufale.html" class="hover:text-slate-200 underline">Archivio Perle</a>
+      <a href="bufale-candidate.html" class="hover:text-slate-200 underline text-indigo-400 font-semibold">Bufale Candidate</a>
       <span>•</span>
-      <a href="hall-of-fame.html" class="hover:text-slate-200 underline text-amber-400 font-semibold">Hall of Fame</a>
+      <a href="hall-of-fame.html" class="hover:text-slate-200 underline">Hall of Fame</a>
       <span>•</span>
       <a href="privacy.html" class="hover:text-slate-200 underline">Privacy Policy</a>
       <span>•</span>
@@ -89,21 +89,21 @@
     </div>
   </footer>
 
-  <!-- SCRIPT DI GESTIONE COMPLETA -->
+  <!-- SCRIPT DI GESTIONE -->
   <script>
     let listaCompleta = [];
     let categoriaSelezionata = 'Tutti';
 
-    async function caricaHallOfFame() {
-      const container = document.getElementById('hallOfFameContainer');
+    async function caricaBufale() {
+      const container = document.getElementById('bufaleContainer');
       try {
-        const res = await fetch('/api/hall-of-fame');
+        const res = await fetch('/api/classifica');
         const data = await res.json();
         
         if (!Array.isArray(data) || data.length === 0) {
           container.innerHTML = `
             <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
-              Nessuna perla in classifica per il momento. Vota la tua prima risposta dalla home!
+              Nessuna bufala candidata al momento.
             </div>`;
           return;
         }
@@ -113,10 +113,10 @@
         mostraDatiFiltrati();
 
       } catch (err) {
-        console.error("Errore caricamento Hall of Fame:", err);
+        console.error("Errore caricamento bufale:", err);
         container.innerHTML = `
           <div class="glass-panel p-6 rounded-2xl text-center text-red-400 italic text-sm">
-            Impossibile connettersi al server per recuperare la classifica. Assicurati che il server sia attivo.
+            Impossibile connettersi al server per recuperare l'archivio. Assicurati che il server sia attivo.
           </div>`;
       }
     }
@@ -126,7 +126,7 @@
       const filtriContainer = document.getElementById('filtriContainer');
       
       filtriContainer.innerHTML = categorie.map(cat => `
-        <button onclick="selezionaCategoria('${cat}')" class="cat-btn text-xs font-medium px-3 py-1.5 rounded-xl transition ${cat === categoriaSelezionata ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-900/40 text-slate-400 border border-slate-800 hover:bg-slate-800'}">
+        <button onclick="selezionaCategoria('${cat}')" class="cat-btn text-xs font-medium px-3 py-1.5 rounded-xl transition ${cat === categoriaSelezionata ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40' : 'bg-slate-900/40 text-slate-400 border border-slate-800 hover:bg-slate-800'}">
           ${cat}
         </button>
       `).join('');
@@ -139,7 +139,7 @@
     }
 
     function mostraDatiFiltrati() {
-      const query = document.getElementById('inputRicercaClassifica').value.toLowerCase().trim();
+      const query = document.getElementById('inputRicercaBufale').value.toLowerCase().trim();
       
       const filtrate = listaCompleta.filter(item => {
         const matchCat = categoriaSelezionata === 'Tutti' || (item.argomento || 'Generale') === categoriaSelezionata;
@@ -147,33 +147,20 @@
         return matchCat && matchQuery;
       });
 
-      const container = document.getElementById('hallOfFameContainer');
+      // Ordinamento per ID discendente (dal più recente al più vecchio)
+      filtrate.sort((a, b) => b.id - a.id);
+
+      const container = document.getElementById('bufaleContainer');
 
       if (filtrate.length === 0) {
         container.innerHTML = `
           <div class="glass-panel p-6 rounded-2xl text-center text-slate-400 italic text-sm">
-            Nessuna perla corrisponde ai criteri di ricerca.
+            Nessuna bufala corrisponde ai criteri di ricerca.
           </div>`;
         return;
       }
 
-      container.innerHTML = filtrate.map((item, index) => {
-        let medaglia = `#${index + 1}`;
-        let borderColor = "border-slate-700/60";
-        let badgeStyle = "bg-amber-500/10 text-amber-300 border-amber-500/20";
-        
-        if (index === 0 && categoriaSelezionata === 'Tutti' && !query) { 
-          medaglia = "🥇 1° Posto"; 
-          borderColor = "border-amber-500/50 bg-amber-500/10"; 
-        } else if (index === 1 && categoriaSelezionata === 'Tutti' && !query) { 
-          medaglia = "🥈 2° Posto"; 
-          borderColor = "border-slate-400/40 bg-slate-400/5"; 
-        } else if (index === 2 && categoriaSelezionata === 'Tutti' && !query) { 
-          medaglia = "🥉 3° Posto"; 
-          borderColor = "border-amber-700/40 bg-amber-700/5"; 
-        }
-
-        // Gestione dello sponsor (se presente e diverso da vuoto)
+      container.innerHTML = filtrate.map((item) => {
         const sponsorHtml = item.sponsor && item.sponsor !== 'Anonimo' 
           ? `<div class="text-[11px] text-purple-300/80 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-lg mt-2 inline-flex items-center gap-1.5 font-mono">
                <span>🤝 Sponsorizzato da:</span> <span class="font-bold text-purple-200">${item.sponsor}</span>
@@ -181,16 +168,16 @@
           : '';
 
         return `
-          <div class="glass-panel p-5 rounded-2xl border ${borderColor} shadow-lg flex flex-col gap-2 relative">
+          <div class="glass-panel p-5 rounded-2xl border border-slate-700/60 shadow-lg flex flex-col gap-2 relative">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span class="text-xs font-mono text-amber-400 font-bold flex items-center gap-1.5">
-                ${medaglia} <span class="text-[10px] text-slate-400 font-normal ml-2">(${item.argomento || 'Generale'})</span>
+              <span class="text-xs font-mono text-indigo-400 font-bold flex items-center gap-1.5">
+                ID #${item.id} <span class="text-[10px] text-slate-400 font-normal ml-2">(${item.argomento || 'Generale'})</span>
               </span>
               <div class="flex items-center gap-2">
-                <span id="voti-badge-${item.id}" class="text-[10px] ${badgeStyle} px-2 py-0.5 rounded-full border font-mono">
+                <span class="text-[10px] bg-amber-500/10 text-amber-300 border-amber-500/20 px-2 py-0.5 rounded-full border font-mono">
                   ⭐ ${item.voti || 0} Voti
                 </span>
-                <button onclick="votaPerla(${item.id})" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/30 transition flex items-center gap-1 font-medium" title="Vota questa perla">
+                <button onclick="votaPerla(${item.id})" class="text-xs bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-500/30 transition flex items-center gap-1 font-medium" title="Vota questa perla">
                   👍 Vota
                 </button>
               </div>
@@ -205,7 +192,7 @@
       }).join('');
     }
 
-    function filtraHallOfFame() {
+    function filtraBufale() {
       mostraDatiFiltrati();
     }
 
@@ -222,7 +209,6 @@
           if (item) {
             item.voti = data.voti;
           }
-          listaCompleta.sort((a, b) => b.voti - a.voti);
           mostraDatiFiltrati();
         } else {
           alert(data.error || "Errore durante la registrazione del voto.");
@@ -233,7 +219,7 @@
       }
     }
 
-    window.addEventListener('DOMContentLoaded', caricaHallOfFame);
+    window.addEventListener('DOMContentLoaded', caricaBufale);
   </script>
 </body>
 </html>
