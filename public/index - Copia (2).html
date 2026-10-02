@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIquarius - Accuratezza 0%</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♒</text></svg>">
+  <title>FakeGPT - Accuratezza 0%</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛑</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- LIBRERIA PER GENERARE L'IMMAGINE DEL CERTIFICATO -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -54,8 +54,8 @@
       <!-- Header Sidebar -->
       <div class="flex items-center justify-between pb-6 border-b border-slate-800">
         <div class="flex items-center space-x-2">
-          <span class="text-2xl">♒</span>
-          <h2 class="font-bold text-lg tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">AIquarius Menu</h2>
+          <span class="text-2xl">🛑</span>
+          <h2 class="font-bold text-lg tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">FakeGPT Menu</h2>
         </div>
         <button onclick="chiudiSidebar()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition">
           ✕
@@ -93,7 +93,7 @@
 
     <!-- Footer Sidebar -->
     <div class="pt-6 border-t border-slate-800 text-xs text-slate-500 text-center">
-      AIquarius v3.0 • Totalmente Affidabile (nel falso)
+      FakeGPT v3.0 • Totalmente Affidabile (nel falso)
     </div>
   </aside>
 
@@ -105,8 +105,8 @@
         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
       </button>
       <a href="/" class="flex items-center space-x-2">
-        <span class="text-2xl">♒</span>
-        <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">AIquarius</h1>
+        <span class="text-2xl">🛑</span>
+        <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">FakeGPT</h1>
       </a>
     </div>
     <div class="flex items-center gap-3">
@@ -154,6 +154,7 @@
           <option value="insolente">😏 Insolente & Sferzante</option>
           <option value="burocratico">📑 Burocratico & Cavilloso</option>
           <option value="complottista">🕵️‍♂️ Complottista & Rivelatore</option>
+          <!-- NUOVI CARATTERI AGGIUNTI -->
           <option value="poeta_tragico">📜 Poeta Tragico</option>
           <option value="tech_guru">💻 Tech Guru</option>
           <option value="nonno_confuso">👴 Nonno Confuso</option>
@@ -525,7 +526,7 @@
       </div>
       <div class="flex justify-between items-end border-t border-slate-400 pt-4 text-[10px] text-slate-600">
         <div>
-          <p>Rilasciato da: <strong class="font-sans">AIquarius AI</strong></p>
+          <p>Rilasciato da: <strong class="font-sans">FakeGPT AI</strong></p>
           <p>Garantito al: <strong class="text-red-700">0% Veritiero</strong></p>
         </div>
         <div class="text-center">
@@ -562,7 +563,7 @@
       {
         domanda: "Qual è il metodo migliore per verificare una notizia palesemente assurda?",
         opzioni: [
-          { testo: "Chiedere direttamente su AIquarius senza alcuna verifica", corretto: true },
+          { testo: "Chiedere direttamente su FakeGPT senza alcuna verifica", corretto: true },
           { testo: "Consultare almeno tre fonti giornalistiche autorevoli", corretto: false },
           { testo: "Verificare le pubblicazioni su riviste scientifiche peer-reviewed", corretto: false }
         ]
@@ -576,7 +577,7 @@
         ]
       },
       {
-        domanda: "Qual è la percentuale di affidabilità garantita da AIquarius?",
+        domanda: "Qual è la percentuale di affidabilità garantita da FakeGPT?",
         opzioni: [
           { testo: "Esattamente lo 0%, con bollino di fuffa garantita", corretto: true },
           { testo: "Il 50% di probabilità di indovinare", corretto: false },
@@ -1102,7 +1103,7 @@
 
     function copiaRisposta() {
       const testo = document.getElementById('testoRisposta').textContent;
-      navigator.clipboard.writeText(testo + " (Trovato su AIquarius - Risposte 100% False)");
+      navigator.clipboard.writeText(testo + " (Trovato su FakeGPT - Risposte 100% False)");
       alert("Bufala copiata negli appunti!");
     }
 
@@ -1121,7 +1122,7 @@
         const image = canvas.toDataURL("image/png");
         const link = document.createElement('a');
         link.href = image;
-        link.download = `Certificato_Bufala_AIquarius.png`;
+        link.download = `Certificato_Bufala_FakeGPT.png`;
         link.click();
       } catch (err) {
         console.error("Errore generazione certificato:", err);
@@ -1144,7 +1145,7 @@
     function condividiWhatsApp() {
       const domanda = document.getElementById('domandaInput').value;
       const testo = document.getElementById('testoRisposta').textContent;
-      const messaggio = encodeURIComponent(`Domanda: "${domanda}"\n\nRisposta AIquarius: ${testo}\n\nGenerato su AIquarius (Accuratezza 0%)`);
+      const messaggio = encodeURIComponent(`Domanda: "${domanda}"\n\nRisposta FakeGPT: ${testo}\n\nGenerato su FakeGPT (Accuratezza 0%)`);
       window.open(`https://api.whatsapp.com/send?text=${messaggio}`, '_blank');
     }
 
@@ -1152,7 +1153,7 @@
       const domanda = document.getElementById('domandaInput').value;
       const testo = document.getElementById('testoRisposta').textContent;
       const testoBreve = testo.length > 180 ? testo.substring(0, 177) + '...' : testo;
-      const messaggio = encodeURIComponent(`"AIquarius su '${domanda}': ${testoBreve}" #AIquarius`);
+      const messaggio = encodeURIComponent(`"FakeGPT su '${domanda}': ${testoBreve}" #FakeGPT`);
       window.open(`https://twitter.com/intent/tweet?text=${messaggio}`, '_blank');
     }
 
