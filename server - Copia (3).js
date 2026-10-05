@@ -40,6 +40,7 @@ async function initDb() {
     // Migration automatica per colonne (se mancano)
     try { await db.execute(`ALTER TABLE bufale ADD COLUMN carattere TEXT DEFAULT 'auto'`); } catch (e) {}
     try { await db.execute(`ALTER TABLE bufale ADD COLUMN argomento TEXT DEFAULT 'Generale'`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE bufale ADD COLUMN sponsor TEXT DEFAULT 'Anonimo'`); } catch (e) {}
 
     // Creazione tabella bufala_giorno
     await db.execute(`
@@ -142,7 +143,8 @@ async function chiamaGeminiConRetry(prompt, retries = 3, delay = 1000) {
         model: 'models/gemini-3.5-flash-lite', 
         contents: prompt,
         config: {
-          temperature: 1.1, // Più alto è, più le risposte saranno varie e imprevedibili
+          temperature: 0.85, // Più alto è, più le risposte saranno varie e imprevedibili
+          top_p: 0.90,       // Filtra le combinazioni di parole troppo estreme o sgangherate
         }
       });
       return response.text;
@@ -313,6 +315,9 @@ Per garantire la massima varietà, DEVI scegliere casualmente UNO dei seguenti s
 Requisiti obbligatori:
 - Il tono deve essere rigorosamente serio e credibile (stile tg o articolo di giornale), il che rende la bufala ancora più divertente.
 - Evita i cliché ripetitivi; stupiscici con dettagli specifici, nomi di enti falsi ma verosimili (es. "Istituto Nazionale di Ricerca Inutile").
+- Modifica ogni volta l'incipit evitando di cominciare sempre con la stessa frase
+- Modifica ogni volta il luogo dal quale proviene la bufala
+- La bufala deve essere di una lunghezza tra le 2 e 3 frasi, non di più
 
 Rispondi in formato JSON con la seguente struttura: {"domanda": "...", "risposta": "..."}. Rispondi SOLO con il JSON valido.
 
@@ -343,20 +348,31 @@ Non inserire MAI il testo di questa richiesta o la descrizione della categoria a
   }
 });
 
-// API: Recupero Classifica da Turso
+// API: Recupero di tutte le Bufale Candidate (Archivio Storico - Senza limiti)
 app.get('/api/classifica', async (req, res) => {
   try {
-    const result = await db.execute('SELECT * FROM bufale ORDER BY voti DESC, id DESC LIMIT 30');
+    const result = await db.execute('SELECT * FROM bufale ORDER BY id DESC');
     res.json(result.rows);
   } catch (error) {
-    console.error("Errore recupero classifica:", error);
-    res.status(500).json({ error: 'Errore nel recupero della classifica.' });
+    console.error("Errore recupero archivio bufale:", error);
+    res.status(500).json({ error: 'Errore nel recupero dell\'archivio.' });
   }
 });
 
-// API: Voto o Candidatura Bufala su Turso
+// API: Recupero Hall of Fame (Top 10 per voti)
+app.get('/api/hall-of-fame', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT * FROM bufale ORDER BY voti DESC, id DESC LIMIT 10');
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore recupero Hall of Fame:", error);
+    res.status(500).json({ error: 'Errore nel recupero della Hall of Fame.' });
+  }
+});
+
+// API: Voto o Candidatura Bufala su Turso (Aggiornato con supporto sponsor)
 app.post('/api/classifica/vota', limiterVoti, async (req, res) => {
-  const { id, domanda, risposta, carattere = 'auto', argomento = 'Costume & Società' } = req.body;
+  const { id, domanda, risposta, carattere = 'auto', argomento = 'Costume & Società', sponsor = 'Anonimo' } = req.body;
 
   try {
     if (id) {
@@ -391,8 +407,8 @@ app.post('/api/classifica/vota', limiterVoti, async (req, res) => {
         return res.json({ success: true, bufala: aggiornataResult.rows[0] });
       } else {
         const insertResult = await db.execute({
-          sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, 1)',
-          args: [domanda, risposta, carattere, argomento]
+          sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti, sponsor) VALUES (?, ?, ?, ?, 1, ?)',
+          args: [domanda, risposta, carattere, argomento, sponsor || 'Anonimo']
         });
         const nuovaId = Number(insertResult.lastInsertRowid);
         const nuovaResult = await db.execute({
