@@ -195,22 +195,13 @@
       <p id="loadingText" class="text-indigo-400 animate-thinking italic text-sm">Consultando i peggiori bar di provincia...</p>
     </div>
 
-    <!-- BOX RISPOSTA -->
+    <!-- BOX RISPOSTA (Senza input sponsor fisso) -->
     <div id="rispostaContainer" class="glass-panel rounded-2xl p-6 shadow-2xl relative mb-8 opacity-0 translate-y-4 transition-all duration-500 ease-out hidden">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 border-b border-slate-700/50 pb-3">
         <span class="text-xs font-mono uppercase tracking-wider text-indigo-400">Risposta Ufficiale (e Falsa)</span>
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <input 
-            type="text" 
-            id="sponsorInput" 
-            placeholder="Tuo Nickname (Sponsor)" 
-            maxlength="30"
-            class="bg-slate-900/80 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 w-full sm:w-44"
-          />
-          <button id="btnCandida" onclick="candidaBufalaCorrente()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 shrink-0 cursor-pointer">
-            🏆 Candida
-          </button>
-        </div>
+        <button id="btnCandida" onclick="apriModalCandida()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 shrink-0 cursor-pointer">
+          🏆 Candida
+        </button>
       </div>
       
       <p id="testoRisposta" class="text-slate-200 text-base leading-relaxed mb-6 font-normal min-h-[4rem] break-words whitespace-pre-wrap">
@@ -271,7 +262,7 @@
       </div>
     </div>
 
-    <!-- BOX BUFALA DEL GIORNO (ORA SPOSTATO QUI SOTTO) -->
+    <!-- BOX BUFALA DEL GIORNO -->
     <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30 mb-8 shadow-xl bg-gradient-to-r from-indigo-950/60 to-purple-950/60">
       <div class="flex items-center justify-between mb-2">
         <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
@@ -335,6 +326,42 @@
       Powered by Gemini AI 🤖
     </div>
   </footer>
+
+  <!-- MODAL: CANDIDATURA SPONSOR -->
+  <div id="modalCandida" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
+      <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏆</span>
+          <h3 class="font-bold text-lg text-white">Candida Bufala alla Hall of Fame</h3>
+        </div>
+        <button onclick="chiudiModalCandida()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition cursor-pointer">
+          ✕
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-xs text-slate-300">Inserisci il nome del tuo personaggio o del tuo sponsor per firmare questa perla di disinformazione:</p>
+        <div>
+          <label for="sponsorModalInput" class="block text-xs text-slate-400 font-medium mb-1.5">Tuo Nickname o Sponsor:</label>
+          <input 
+            type="text" 
+            id="sponsorModalInput" 
+            placeholder="Es: Dott. Cariatide / Anonimo" 
+            maxlength="30"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+          />
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-800 flex justify-end gap-2 bg-slate-900/50">
+        <button onclick="chiudiModalCandida()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer">
+          Annulla
+        </button>
+        <button id="btnConfermaCandida" onclick="confermaCandidaBufala()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-amber-600/20 cursor-pointer flex items-center gap-1.5">
+          🚀 Invia Candidatura
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL: HALL OF FAME (CLASSIFICA) -->
   <div id="modalHallOfFame" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
@@ -618,7 +645,62 @@
       overlay.classList.add('opacity-0', 'pointer-events-none');
     }
 
-    // GESTIONE MODALI
+    // GESTIONE MODALE CANDIDATURA SPONSOR
+    function apriModalCandida() {
+      if (!ultimaDomanda || !ultimaRisposta) return;
+      const modal = document.getElementById('modalCandida');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      document.getElementById('sponsorModalInput').value = '';
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      document.getElementById('sponsorModalInput').focus();
+    }
+
+    function chiudiModalCandida() {
+      const modal = document.getElementById('modalCandida');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    async function confermaCandidaBufala() {
+      const btn = document.getElementById('btnConfermaCandida');
+      const sponsorInput = document.getElementById('sponsorModalInput');
+      const sponsor = sponsorInput.value.trim() || 'Anonimo';
+
+      try {
+        btn.disabled = true;
+        btn.innerText = '⏳ Inserimento...';
+
+        const res = await fetch('/api/classifica/vota', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domanda: ultimaDomanda, risposta: ultimaRisposta, sponsor: sponsor })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          chiudiModalCandida();
+          const btnMainCandida = document.getElementById('btnCandida');
+          btnMainCandida.innerText = '✅ Candidata!';
+          btnMainCandida.className = 'bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-500/30 transition flex items-center gap-1.5 shrink-0';
+          btnMainCandida.disabled = true;
+          caricaClassifica();
+        } else {
+          alert(data.error || "⚠️ Si è verificato un errore durante la candidatura.");
+        }
+      } catch (err) {
+        console.error("Errore durante la candidatura:", err);
+        alert("Impossibile connettersi al server.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🚀 Invia Candidatura';
+      }
+    }
+
+    // GESTIONE ALTRE MODALI
     function apriModalHallOfFame() {
       const modal = document.getElementById('modalHallOfFame');
       const content = modal.querySelector('div > div:nth-child(2)');
@@ -974,40 +1056,6 @@
         testoRisposta.textContent = "Impossibile connettersi al server delle risposte fake. Assicurati che 'server.js' sia avviato!";
       } finally {
         isGenerating = false;
-      }
-    }
-
-    async function candidaBufalaCorrente() {
-      const btn = document.getElementById('btnCandida');
-      const sponsorInput = document.getElementById('sponsorInput');
-      if (!ultimaDomanda || !ultimaRisposta) return;
-
-      const sponsor = sponsorInput.value.trim() || 'Anonimo';
-
-      try {
-        btn.disabled = true;
-        btn.innerText = '⏳ Inserimento...';
-
-        const res = await fetch('/api/classifica/vota', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ domanda: ultimaDomanda, risposta: ultimaRisposta, sponsor: sponsor })
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          btn.innerText = '✅ Candidata!';
-          btn.className = 'bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-500/30 transition flex items-center gap-1.5 shrink-0';
-          caricaClassifica();
-        } else {
-          btn.disabled = false;
-          btn.innerText = '🏆 Candida';
-          alert(data.error || "⚠️ Si è verificato un errore durante la candidatura.");
-        }
-      } catch (err) {
-        console.error("Errore durante la candidatura:", err);
-        btn.innerText = '❌ Errore';
-        btn.disabled = false;
       }
     }
 
