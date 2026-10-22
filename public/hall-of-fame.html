@@ -14,6 +14,19 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
+
+    /* Custom Scrollbar per le reazioni */
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
@@ -94,6 +107,40 @@
     let listaCompleta = [];
     let categoriaSelezionata = 'Tutti';
 
+    // HELPER PER RENDERIZZARE LA BARRA REAZIONI EMOJI SOTTO LO SPONSOR
+    function renderReazioniBar(b) {
+      return `
+        <div class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-700/40 w-full">
+          <div class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-700/60 shadow-inner overflow-x-auto custom-scrollbar">
+            <!-- Positive -->
+            <button onclick="votaBufala(${b.id}, 'fuffa')" title="Pura Fuffa (+1)" class="hover:bg-slate-800 text-[11px] px-2 py-0.5 rounded-md transition flex items-center gap-1 cursor-pointer">
+              🤣 <span class="text-slate-300 font-mono">${b.reazione_fuffa || 0}</span>
+            </button>
+            <button onclick="votaBufala(${b.id}, 'clown')" title="Clownry (+2)" class="hover:bg-slate-800 text-[11px] px-2 py-0.5 rounded-md transition flex items-center gap-1 cursor-pointer">
+              🤡 <span class="text-slate-300 font-mono">${b.reazione_clown || 0}</span>
+            </button>
+            <button onclick="votaBufala(${b.id}, 'esplosa')" title="Mente Esplosa (+3)" class="hover:bg-slate-800 text-[11px] px-2 py-0.5 rounded-md transition flex items-center gap-1 cursor-pointer">
+              🤯 <span class="text-slate-300 font-mono">${b.reazione_esplosa || 0}</span>
+            </button>
+            <span class="text-slate-700 px-0.5">|</span>
+            <!-- Negative -->
+            <button onclick="votaBufala(${b.id}, 'vera')" title="Troppo Vera (-1)" class="hover:bg-slate-800 text-[11px] px-2 py-0.5 rounded-md transition flex items-center gap-1 cursor-pointer">
+              💤 <span class="text-slate-400 font-mono">${b.reazione_vera || 0}</span>
+            </button>
+            <button onclick="votaBufala(${b.id}, 'scadente')" title="Fuffa Scadente (-2)" class="hover:bg-slate-800 text-[11px] px-2 py-0.5 rounded-md transition flex items-center gap-1 cursor-pointer">
+              💩 <span class="text-slate-400 font-mono">${b.reazione_scadente || 0}</span>
+            </button>
+            <button onclick="votaBufala(${b.id}, 'cringe')" title="Cringe (-3)" class="hover:bg-slate-800 text-[11px] px-2 py-0.5 rounded-md transition flex items-center gap-1 cursor-pointer">
+              🤮 <span class="text-slate-400 font-mono">${b.reazione_cringe || 0}</span>
+            </button>
+          </div>
+          <span class="text-[11px] font-bold ${b.voti >= 0 ? 'text-amber-400' : 'text-pink-400'} font-mono bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-700/50 shrink-0">
+            Punteggio: ${b.voti || 0}
+          </span>
+        </div>
+      `;
+    }
+
     async function caricaHallOfFame() {
       const container = document.getElementById('hallOfFameContainer');
       try {
@@ -126,7 +173,7 @@
       const filtriContainer = document.getElementById('filtriContainer');
       
       filtriContainer.innerHTML = categorie.map(cat => `
-        <button onclick="selezionaCategoria('${cat}')" class="cat-btn text-xs font-medium px-3 py-1.5 rounded-xl transition ${cat === categoriaSelezionata ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-900/40 text-slate-400 border border-slate-800 hover:bg-slate-800'}">
+        <button onclick="selezionaCategoria('${cat}')" class="cat-btn text-xs font-medium px-3 py-1.5 rounded-xl transition cursor-pointer ${cat === categoriaSelezionata ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-900/40 text-slate-400 border border-slate-800 hover:bg-slate-800'}">
           ${cat}
         </button>
       `).join('');
@@ -160,7 +207,6 @@
       container.innerHTML = filtrate.map((item, index) => {
         let medaglia = `#${index + 1}`;
         let borderColor = "border-slate-700/60";
-        let badgeStyle = "bg-amber-500/10 text-amber-300 border-amber-500/20";
         
         if (index === 0 && categoriaSelezionata === 'Tutti' && !query) { 
           medaglia = "🥇 1° Posto"; 
@@ -173,33 +219,31 @@
           borderColor = "border-amber-700/40 bg-amber-700/5"; 
         }
 
-        // Gestione dello sponsor (se presente e diverso da vuoto)
+        // Sponsor HTML
         const sponsorHtml = item.sponsor && item.sponsor !== 'Anonimo' 
           ? `<div class="text-[11px] text-purple-300/80 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-lg mt-2 inline-flex items-center gap-1.5 font-mono">
-               <span>🤝 Sponsorizzato da:</span> <span class="font-bold text-purple-200">${item.sponsor}</span>
+               <span>🏷️ Sponsor:</span> <span class="font-bold text-purple-200">${item.sponsor}</span>
              </div>`
-          : '';
+          : `<div class="text-[10px] text-indigo-400 mt-2 font-medium">🏷️ Sponsor: <span class="text-indigo-300 font-semibold">Anonimo</span></div>`;
 
         return `
-          <div class="glass-panel p-5 rounded-2xl border ${borderColor} shadow-lg flex flex-col gap-2 relative">
+          <div class="glass-panel p-5 rounded-2xl border ${borderColor} shadow-lg flex flex-col gap-2 transition duration-200 hover:border-slate-600/60">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
               <span class="text-xs font-mono text-amber-400 font-bold flex items-center gap-1.5">
                 ${medaglia} <span class="text-[10px] text-slate-400 font-normal ml-2">(${item.argomento || 'Generale'})</span>
               </span>
-              <div class="flex items-center gap-2">
-                <span id="voti-badge-${item.id}" class="text-[10px] ${badgeStyle} px-2 py-0.5 rounded-full border font-mono">
-                  ⭐ ${item.voti || 0} Voti
-                </span>
-                <button onclick="votaPerla(${item.id})" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/30 transition flex items-center gap-1 font-medium" title="Vota questa perla">
-                  👍 Vota
-                </button>
-              </div>
             </div>
-            <h3 class="text-sm sm:text-base font-bold text-white mt-1">"${item.domanda}"</h3>
-            <p class="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
-              ${item.risposta}
-            </p>
-            ${sponsorHtml}
+
+            <div class="min-w-0 flex-1">
+              <h3 class="text-sm sm:text-base font-bold text-white mt-1 break-words">"${item.domanda}"</h3>
+              <p class="text-xs sm:text-sm text-slate-300 italic leading-relaxed mt-1 break-words">
+                ${item.risposta}
+              </p>
+              ${sponsorHtml}
+            </div>
+
+            <!-- REAZIONI PESATE INSERITE SOTTO LO SPONSOR -->
+            ${renderReazioniBar(item)}
           </div>
         `;
       }).join('');
@@ -209,27 +253,33 @@
       mostraDatiFiltrati();
     }
 
-    async function votaPerla(id) {
+    async function votaBufala(id, reazione = 'fuffa') {
       try {
         const res = await fetch('/api/classifica/vota', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: id })
+          body: JSON.stringify({ id, reazione })
         });
         const data = await res.json();
-        if (data.success) {
+        
+        if (res.ok) {
           const item = listaCompleta.find(b => b.id === id);
           if (item) {
-            item.voti = data.voti;
+            item.voti = data.voti || (item.voti + 1);
+            if (data.reazione_fuffa !== undefined) item.reazione_fuffa = data.reazione_fuffa;
+            if (data.reazione_clown !== undefined) item.reazione_clown = data.reazione_clown;
+            if (data.reazione_esplosa !== undefined) item.reazione_esplosa = data.reazione_esplosa;
+            if (data.reazione_vera !== undefined) item.reazione_vera = data.reazione_vera;
+            if (data.reazione_scadente !== undefined) item.reazione_scadente = data.reazione_scadente;
+            if (data.reazione_cringe !== undefined) item.reazione_cringe = data.reazione_cringe;
           }
           listaCompleta.sort((a, b) => b.voti - a.voti);
           mostraDatiFiltrati();
         } else {
-          alert(data.error || "Errore durante la registrazione del voto.");
+          alert(data.error || "⚠️ Errore durante il voto.");
         }
       } catch (err) {
-        console.error("Errore di rete durante il voto:", err);
-        alert("Impossibile comunicare con il server.");
+        console.error("Errore voto reazione:", err);
       }
     }
 
