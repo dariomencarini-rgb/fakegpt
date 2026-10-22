@@ -21,6 +21,16 @@ const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
+// Mappa dei pesi delle reazioni (+3 a -3)
+const PESI_REAZIONI = {
+  fuffa: 1,      // 🤣 Pura Fuffa (+1)
+  clown: 2,      // 🤡 Clownry (+2)
+  esplosa: 3,    // 🤯 Mente Esplosa (+3)
+  vera: -1,      // 💤 Troppo Vera (-1)
+  scadente: -2,  // 💩 Fuffa Scadente (-2)
+  cringe: -3     // 🤮 Cringe (-3)
+};
+
 // Funzione asincrona per inizializzare tabelle e dati iniziali
 async function initDb() {
   try {
@@ -33,6 +43,13 @@ async function initDb() {
         carattere TEXT DEFAULT 'auto',
         argomento TEXT DEFAULT 'Generale',
         voti INTEGER DEFAULT 1,
+        sponsor TEXT DEFAULT 'Anonimo',
+        reazione_fuffa INTEGER DEFAULT 0,
+        reazione_clown INTEGER DEFAULT 0,
+        reazione_esplosa INTEGER DEFAULT 0,
+        reazione_vera INTEGER DEFAULT 0,
+        reazione_scadente INTEGER DEFAULT 0,
+        reazione_cringe INTEGER DEFAULT 0,
         data_creazione DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -41,6 +58,12 @@ async function initDb() {
     try { await db.execute(`ALTER TABLE bufale ADD COLUMN carattere TEXT DEFAULT 'auto'`); } catch (e) {}
     try { await db.execute(`ALTER TABLE bufale ADD COLUMN argomento TEXT DEFAULT 'Generale'`); } catch (e) {}
     try { await db.execute(`ALTER TABLE bufale ADD COLUMN sponsor TEXT DEFAULT 'Anonimo'`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE bufale ADD COLUMN reazione_fuffa INTEGER DEFAULT 0`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE bufale ADD COLUMN reazione_clown INTEGER DEFAULT 0`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE bufale ADD COLUMN reazione_esplosa INTEGER DEFAULT 0`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE bufale ADD COLUMN reazione_vera INTEGER DEFAULT 0`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE bufale ADD COLUMN reazione_scadente INTEGER DEFAULT 0`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE bufale ADD COLUMN reazione_cringe INTEGER DEFAULT 0`); } catch (e) {}
 
     // Creazione tabella bufala_giorno
     await db.execute(`
@@ -57,27 +80,29 @@ async function initDb() {
 
     if (countCheck.count === 0) {
       await db.execute({
-        sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, ?)',
+        sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti, reazione_fuffa) VALUES (?, ?, ?, ?, ?, ?)',
         args: [
           "Perché la luna è fatta di formaggio?",
           "Nel 1969 l'Apollo 11 ha confermato che il cratere Tycho è composto al 98% da Pecorino Romano D.O.P. stagionato 24 mesi.",
           "accademico",
           "Scienza & Spazio",
+          124,
           124
         ]
       });
       await db.execute({
-        sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti) VALUES (?, ?, ?, ?, ?)',
+        sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti, reazione_clown) VALUES (?, ?, ?, ?, ?, ?)',
         args: [
           "E' vero che la Torre di Pisa si sta raddrizzando a causa delle ricerche su Google Maps?",
           "Assolutamente sì! Secondo un recente stusio dell'Agenzia Spaziale, la pressione esercitata dai satelliti per la geolocalizzazione e dai miliardi di clic degli utenti che cercano indicazioni stradali in Toscana sta generando un campo magnetico gravitazionale che sta letteralmente tirando su la torre. Gli ingegneri consigliano di smettere di cercare la piazza per evitare che diventi completamente dritta, rovinando il turismo.",
           "burocratico",
           "Accademico & Solenne",
-          98
+          98,
+          49
         ]
       });
     }
-    console.log("Database Turso inizializzato con successo!");
+    console.log("Database Turso e schema reazioni inizializzati con successo!");
   } catch (error) {
     console.error("Errore durante l'inizializzazione del database:", error);
   }
@@ -117,7 +142,7 @@ const limiterGenerazione = rateLimit({
 
 const limiterVoti = rateLimit({
   windowMs: 60 * 1000,
-  max: 20,
+  max: 30,
   message: { error: "⚠️ Calma con i clic! Stai votando troppo velocemente." },
   standardHeaders: true,
   legacyHeaders: false,
@@ -160,8 +185,6 @@ async function chiamaGeminiConRetry(prompt, retries = 3, delay = 1000) {
   }
 }
 
-
-
 // API: Generazione risposta Fake
 app.post('/api/fake-answer', limiterGenerazione, async (req, res) => {
   let { domanda, carattere } = req.body;
@@ -170,15 +193,11 @@ app.post('/api/fake-answer', limiterGenerazione, async (req, res) => {
     return res.status(400).json({ error: 'Domanda mancante.' });
   }
 
-  // Se il carattere è 'auto' o non è specificato, ne peschiamo uno casuale 
-  // tra le personalità disponibili (escludendo 'auto')
   if (!carattere || carattere === 'auto') {
     const chiaviPersonalita = Object.keys(istruzioniCarattere).filter(k => k !== 'auto');
     const randomIndex = Math.floor(Math.random() * chiaviPersonalita.length);
     carattere = chiaviPersonalita[randomIndex];
   }
-
-  // DETTAGLI CARATTERE
 
   const dettagliCaratteri = {
     auto: { nome: "Automatico", icona: "🤖" },
@@ -231,14 +250,9 @@ Domanda dell'utente: "${domanda}"`;
     const pulito = rawText.replace(/```json|```/g, '').trim();
     const dataJSON = JSON.parse(pulito);
 
-
-    // Recuperiamo il nome esteso e l'icona dal dizionario (con fallback di sicurezza)
     const infoCarattere = dettagliCaratteri[carattere] || { nome: carattere, icona: "🎭" };
-
-    // Componiamo il testo con l'icona prima del nome del carattere
     const rispostaFormattata = `${dataJSON.risposta}\n\nTi ha risposto: ${infoCarattere.icona} ${infoCarattere.nome}`;
 
-    // Restituiamo anche il campo 'carattere' (aggiornato con quello effettivo scelto o estratto)
     res.json({
       risposta: rispostaFormattata,
       argomento: dataJSON.argomento || 'Costume & Società',
@@ -267,8 +281,6 @@ Domanda dell'utente: "${domanda}"`;
   }
 });
 
-
-
 // API: Recupero Storico di tutte le Bufale del Giorno
 app.get('/api/bufale-giorno-storico', async (req, res) => {
   try {
@@ -285,7 +297,6 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
   const oggi = new Date().toLocaleDateString('it-IT');
 
   try {
-    // 1. Verifichiamo se esiste già una bufala per la data odierna
     const resultCheck = await db.execute({
       sql: 'SELECT data, domanda, risposta FROM bufala_giorno WHERE data = ?',
       args: [oggi]
@@ -293,7 +304,6 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
     
     const bufalaEsistente = resultCheck.rows[0];
 
-    // 2. Se esiste già, restituiamo quella senza fare alcuna modifica
     if (bufalaEsistente) {
       return res.json({
         data: bufalaEsistente.data,
@@ -302,7 +312,6 @@ app.get('/api/bufala-del-giorno', async (req, res) => {
       });
     }
 
-    // 3. Altrimenti, generiamo una nuova bufala tramite Gemini
     const promptBufalaGiorno = `Genera una 'Bufala del Giorno' completamente inventata, assurda e surreale. 
 
 Per garantire la massima varietà, DEVI scegliere casualmente UNO dei seguenti stili e contesti:
@@ -327,7 +336,6 @@ Non inserire MAI il testo di questa richiesta o la descrizione della categoria a
     const pulito = testo.replace(/```json|```/g, '').trim();
     const dataJSON = JSON.parse(pulito);
 
-    // 4. Inseriamo la nuova bufala nel database per la data odierna
     await db.execute({
       sql: 'INSERT INTO bufala_giorno (data, domanda, risposta) VALUES (?, ?, ?)',
       args: [oggi, dataJSON.domanda, dataJSON.risposta]
@@ -348,7 +356,7 @@ Non inserire MAI il testo di questa richiesta o la descrizione della categoria a
   }
 });
 
-// API: Recupero di tutte le Bufale Candidate (Archivio Storico - Senza limiti)
+// API: Recupero di tutte le Bufale Candidate (Archivio Storico)
 app.get('/api/classifica', async (req, res) => {
   try {
     const result = await db.execute('SELECT * FROM bufale ORDER BY id DESC');
@@ -392,59 +400,79 @@ app.get('/api/hall-of-fame/top5', async (req, res) => {
   }
 });
 
-// API: Voto o Candidatura Bufala su Turso (Aggiornato con supporto sponsor)
+// ======================================================
+// API: Gestione Reazioni e Voto Pesato (+3 / -3)
+// ======================================================
 app.post('/api/classifica/vota', limiterVoti, async (req, res) => {
-  const { id, domanda, risposta, carattere = 'auto', argomento = 'Costume & Società', sponsor = 'Anonimo' } = req.body;
+  const { id, reazione = 'fuffa', domanda, risposta, carattere = 'auto', argomento = 'Costume & Società', sponsor = 'Anonimo' } = req.body;
 
   try {
-    if (id) {
-      await db.execute({
-        sql: 'UPDATE bufale SET voti = voti + 1 WHERE id = ?',
-        args: [id]
-      });
-      const result = await db.execute({
-        sql: 'SELECT voti FROM bufale WHERE id = ?',
-        args: [id]
-      });
-      const bufalaAggiornata = result.rows[0];
-      return res.json({ success: true, voti: bufalaAggiornata ? bufalaAggiornata.voti : 1 });
+    // Validazione della reazione richiesta
+    if (!PESI_REAZIONI.hasOwnProperty(reazione)) {
+      return res.status(400).json({ error: 'Tipo di reazione non valido.' });
     }
 
-    if (domanda && risposta) {
-      const checkResult = await db.execute({
-        sql: 'SELECT id, voti FROM bufale WHERE domanda = ? AND risposta = ?',
-        args: [domanda, risposta]
-      });
-      const esistente = checkResult.rows[0];
+    const colonnaReazione = `reazione_${reazione}`;
 
-      if (esistente) {
-        await db.execute({
-          sql: 'UPDATE bufale SET voti = voti + 1 WHERE id = ?',
-          args: [esistente.id]
-        });
-        const aggiornataResult = await db.execute({
-          sql: 'SELECT * FROM bufale WHERE id = ?',
-          args: [esistente.id]
-        });
-        return res.json({ success: true, bufala: aggiornataResult.rows[0] });
-      } else {
-        const insertResult = await db.execute({
-          sql: 'INSERT INTO bufale (domanda, risposta, carattere, argomento, voti, sponsor) VALUES (?, ?, ?, ?, 1, ?)',
-          args: [domanda, risposta, carattere, argomento, sponsor || 'Anonimo']
-        });
-        const nuovaId = Number(insertResult.lastInsertRowid);
-        const nuovaResult = await db.execute({
-          sql: 'SELECT * FROM bufale WHERE id = ?',
-          args: [nuovaId]
-        });
-        return res.json({ success: true, bufala: nuovaResult.rows[0] });
-      }
+    // CASO 1: Reazione su una bufala già esistente via ID
+    if (id) {
+      // 1. Incrementiamo la specifica colonna di reazione
+      await db.execute({
+        sql: `UPDATE bufale SET ${colonnaReazione} = ${colonnaReazione} + 1 WHERE id = ?`,
+        args: [id]
+      });
+
+      // 2. Leggiamo la riga per ricalcolare il punteggio pesato
+      const checkResult = await db.execute({
+        sql: 'SELECT * FROM bufale WHERE id = ?',
+        args: [id]
+      });
+
+      const b = checkResult.rows[0];
+      if (!b) return res.status(404).json({ error: 'Bufala non trovata.' });
+
+      // 3. Calcolo del totale algebrico pesato
+      const nuovoPunteggio = 
+        ((b.reazione_fuffa || 0) * PESI_REAZIONI.fuffa) +
+        ((b.reazione_clown || 0) * PESI_REAZIONI.clown) +
+        ((b.reazione_esplosa || 0) * PESI_REAZIONI.esplosa) +
+        ((b.reazione_vera || 0) * PESI_REAZIONI.vera) +
+        ((b.reazione_scadente || 0) * PESI_REAZIONI.scadente) +
+        ((b.reazione_cringe || 0) * PESI_REAZIONI.cringe);
+
+      // 4. Salviamo il valore calcolato in `voti`
+      await db.execute({
+        sql: 'UPDATE bufale SET voti = ? WHERE id = ?',
+        args: [nuovoPunteggio, id]
+      });
+
+      b.voti = nuovoPunteggio;
+      return res.json({ success: true, bufala: b });
+    }
+
+    // CASO 2: Candidatura di una NUOVA bufala con prima reazione
+    if (domanda && risposta) {
+      const pesoIniziale = PESI_REAZIONI[reazione] || 1;
+
+      const insertResult = await db.execute({
+        sql: `INSERT INTO bufale (domanda, risposta, carattere, argomento, voti, sponsor, ${colonnaReazione}) 
+              VALUES (?, ?, ?, ?, ?, ?, 1)`,
+        args: [domanda, risposta, carattere, argomento, pesoIniziale, sponsor || 'Anonimo']
+      });
+
+      const nuovaId = Number(insertResult.lastInsertRowid);
+      const nuovaResult = await db.execute({
+        sql: 'SELECT * FROM bufale WHERE id = ?',
+        args: [nuovaId]
+      });
+
+      return res.json({ success: true, bufala: nuovaResult.rows[0] });
     }
 
     res.status(400).json({ error: 'Dati mancanti per l\'operazione.' });
   } catch (error) {
-    console.error("Errore salvataggio voto/bufala:", error);
-    res.status(500).json({ error: 'Errore interno del server.' });
+    console.error("Errore salvataggio reazione pesata:", error);
+    res.status(500).json({ error: 'Errore interno del server durante il voto.' });
   }
 });
 
@@ -481,18 +509,6 @@ app.get('/api/stats/trends', async (req, res) => {
     res.status(500).json({ error: "Errore nel calcolo dei trend." });
   }
 });
-
-// API: Recupero di tutte le bufale del giorno storiche
-app.get('/api/bufale-giorno-storico', async (req, res) => {
-  try {
-    const result = await db.execute('SELECT data, domanda, risposta FROM bufala_giorno ORDER BY data DESC');
-    res.json({ success: true, bufale: result.rows });
-  } catch (error) {
-    console.error("Errore nel recupero dello storico delle bufale del giorno:", error);
-    res.status(500).json({ error: "Errore nel recupero dello storico." });
-  }
-});
-
 
 app.listen(PORT, () => {
   console.log(`Server FakeGPT attivo su http://localhost:${PORT}`);
