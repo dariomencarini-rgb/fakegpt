@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FakeGPT - Accuratezza 0%</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛑</text></svg>">
+  <title>AIquarius - Accuratezza 0%</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♒</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- LIBRERIA PER GENERARE L'IMMAGINE DEL CERTIFICATO -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -54,8 +54,8 @@
       <!-- Header Sidebar -->
       <div class="flex items-center justify-between pb-6 border-b border-slate-800">
         <div class="flex items-center space-x-2">
-          <span class="text-2xl">🛑</span>
-          <h2 class="font-bold text-lg tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">FakeGPT Menu</h2>
+          <span class="text-2xl">♒</span>
+          <h2 class="font-bold text-lg tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">AIquarius Menu</h2>
         </div>
         <button onclick="chiudiSidebar()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition">
           ✕
@@ -70,30 +70,37 @@
         <button onclick="chiudiSidebar(); generaNewsCasualeMenu();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-emerald-500/20 hover:text-emerald-300 transition duration-200 text-left">
           <span>🎲</span> Generatore Casuale
         </button>
-        <button onclick="chiudiSidebar(); apriModalHallOfFame();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-amber-500/20 hover:text-amber-300 transition duration-200 text-left">
+        <!-- HALL OF FAME (PAGINA DEDICATA) -->
+        <a href="hall-of-fame.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-amber-500/20 hover:text-amber-300 transition duration-200 text-left">
           <span>🏆</span> Hall of Fame (Classifica)
-        </button>
-        <button onclick="chiudiSidebar(); apriModalTutteLeBufale();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-blue-500/20 hover:text-blue-300 transition duration-200 text-left">
+        </a>
+        <!-- NUOVA PAGINA DEDICATA -->
+        <a href="bufale-candidate.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-blue-500/20 hover:text-blue-300 transition duration-200 text-left">
           <span>📚</span> Tutte le bufale candidate
-        </button>
+        </a>
         <button onclick="chiudiSidebar(); apriModalTrend();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-pink-500/20 hover:text-pink-300 transition duration-200 text-left">
           <span>📈</span> Trend della Disinformazione
         </button>
         <button onclick="chiudiSidebar(); apriModalPatentino();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-purple-500/20 hover:text-purple-300 transition duration-200 text-left">
           <span>📜</span> Il Patentino del Bufalaro
         </button>
+        <!-- GLOSSARIO DELLA FUFFA -->
+        <a href="glossario.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-indigo-500/20 hover:text-indigo-300 transition duration-200 text-left">
+          <span>📖</span> Glossario della Fuffa
+        </a>
+        <!-- ARCHIVIO DELLE PERLE -->
+        <a href="archivio-bufale.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-amber-500/20 hover:text-amber-300 transition duration-200 text-left">
+          <span>⭐</span> Archivio delle Perle
+        </a>
         <button onclick="chiudiSidebar(); apriModalStatistiche();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-indigo-500/20 hover:text-indigo-300 transition duration-200 text-left">
           <span>📊</span> Statistiche Generali
-        </button>
-        <button onclick="chiudiSidebar(); apriModalStoricoBufale();" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-200 hover:bg-teal-500/20 hover:text-teal-300 transition duration-200 text-left">
-          <span>📅</span> Storico Bufale del Giorno
         </button>
       </nav>
     </div>
 
     <!-- Footer Sidebar -->
     <div class="pt-6 border-t border-slate-800 text-xs text-slate-500 text-center">
-      FakeGPT v3.0 • Totalmente Affidabile (nel falso)
+      AIquarius v3.0 • Totalmente Affidabile (nel falso)
     </div>
   </aside>
 
@@ -105,8 +112,8 @@
         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
       </button>
       <a href="/" class="flex items-center space-x-2">
-        <span class="text-2xl">🛑</span>
-        <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">FakeGPT</h1>
+        <span class="text-2xl">♒</span>
+        <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">AIquarius</h1>
       </a>
     </div>
     <div class="flex items-center gap-3">
@@ -124,21 +131,7 @@
       <p class="text-slate-400 text-sm sm:text-base">Ti garantiamo al 100% risposte completamente inventate, false e senza alcun senso scientifico.</p>
     </div>
 
-    <!-- BOX BUFALA DEL GIORNO -->
-    <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30 mb-8 shadow-xl bg-gradient-to-r from-indigo-950/60 to-purple-950/60">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
-          ⭐ Bufala del Giorno
-        </span>
-        <span id="dataBufalaGiorno" class="text-[10px] text-slate-400 font-mono">--/--/----</span>
-      </div>
-      <h3 id="domandaBufalaGiorno" class="text-base font-bold text-white mb-2">Caricamento bufala...</h3>
-      <p id="testoBufalaGiorno" class="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
-        Chiedendo le ultime novità ai nostri esperti fittizi...
-      </p>
-    </div>
-
-    <!-- CASSELLA DI RICERCA + SELETTORE CARATTERE -->
+    <!-- CASSELLA DI RICERCA + SELETTORE CARATTERE (Spostata subito sotto il titolo) -->
     <div class="glass-panel p-4 rounded-2xl shadow-xl mb-6 flex flex-col gap-3">
       
       <!-- MENU A TENDINA CARATTERE -->
@@ -154,7 +147,6 @@
           <option value="insolente">😏 Insolente & Sferzante</option>
           <option value="burocratico">📑 Burocratico & Cavilloso</option>
           <option value="complottista">🕵️‍♂️ Complottista & Rivelatore</option>
-          <!-- NUOVI CARATTERI AGGIUNTI -->
           <option value="poeta_tragico">📜 Poeta Tragico</option>
           <option value="tech_guru">💻 Tech Guru</option>
           <option value="nonno_confuso">👴 Nonno Confuso</option>
@@ -203,22 +195,13 @@
       <p id="loadingText" class="text-indigo-400 animate-thinking italic text-sm">Consultando i peggiori bar di provincia...</p>
     </div>
 
-    <!-- BOX RISPOSTA -->
+    <!-- BOX RISPOSTA (Senza input sponsor fisso) -->
     <div id="rispostaContainer" class="glass-panel rounded-2xl p-6 shadow-2xl relative mb-8 opacity-0 translate-y-4 transition-all duration-500 ease-out hidden">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 border-b border-slate-700/50 pb-3">
         <span class="text-xs font-mono uppercase tracking-wider text-indigo-400">Risposta Ufficiale (e Falsa)</span>
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <input 
-            type="text" 
-            id="sponsorInput" 
-            placeholder="Tuo Nickname (Sponsor)" 
-            maxlength="30"
-            class="bg-slate-900/80 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 w-full sm:w-44"
-          />
-          <button id="btnCandida" onclick="candidaBufalaCorrente()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 shrink-0 cursor-pointer">
-            🏆 Candida
-          </button>
-        </div>
+        <button id="btnCandida" onclick="apriModalCandida()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 shrink-0 cursor-pointer">
+          🏆 Candida
+        </button>
       </div>
       
       <p id="testoRisposta" class="text-slate-200 text-base leading-relaxed mb-6 font-normal min-h-[4rem] break-words whitespace-pre-wrap">
@@ -279,8 +262,22 @@
       </div>
     </div>
 
+    <!-- BOX BUFALA DEL GIORNO -->
+    <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30 mb-8 shadow-xl bg-gradient-to-r from-indigo-950/60 to-purple-950/60">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
+          ⭐ Bufala del Giorno
+        </span>
+        <span id="dataBufalaGiorno" class="text-[10px] text-slate-400 font-mono">--/--/----</span>
+      </div>
+      <h3 id="domandaBufalaGiorno" class="text-base font-bold text-white mb-2">Caricamento bufala...</h3>
+      <p id="testoBufalaGiorno" class="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
+        Chiedendo le ultime novità ai nostri esperti fittizi...
+      </p>
+    </div>
+
     <!-- SEZIONE CLASSIFICA PRINCIPALE NELLA HOME -->
-    <div class="w-full max-w-2xl mx-auto mt-8 px-4">
+    <div class="w-full max-w-2xl mx-auto mt-2 px-4">
       
       <!-- Pulsanti di navigazione tra le schede -->
       <div class="flex w-full rounded-xl bg-slate-900/80 p-1 mb-6 border border-slate-800 shadow-lg glass-panel">
@@ -318,6 +315,8 @@
     <div class="space-x-3 text-slate-400">
       <a href="chi-siamo.html" class="hover:text-slate-200 underline">Chi Siamo & Manifesto</a>
       <span>•</span>
+      <a href="glossario.html" class="hover:text-slate-200 underline text-indigo-400 font-semibold">Glossario della Fuffa</a>
+      <span>•</span>
       <a href="privacy.html" class="hover:text-slate-200 underline">Privacy Policy</a>
       <span>•</span>
       <a href="termini.html" class="hover:text-slate-200 underline">Termini & Disclaimer</a>
@@ -327,6 +326,42 @@
       Powered by Gemini AI 🤖
     </div>
   </footer>
+
+  <!-- MODAL: CANDIDATURA SPONSOR -->
+  <div id="modalCandida" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
+      <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏆</span>
+          <h3 class="font-bold text-lg text-white">Candida Bufala alla Hall of Fame</h3>
+        </div>
+        <button onclick="chiudiModalCandida()" class="text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition cursor-pointer">
+          ✕
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-xs text-slate-300">Inserisci il nome del tuo personaggio o del tuo sponsor per firmare questa perla di disinformazione:</p>
+        <div>
+          <label for="sponsorModalInput" class="block text-xs text-slate-400 font-medium mb-1.5">Tuo Nickname o Sponsor:</label>
+          <input 
+            type="text" 
+            id="sponsorModalInput" 
+            placeholder="Es: Dott. Cariatide / Anonimo" 
+            maxlength="30"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+          />
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-800 flex justify-end gap-2 bg-slate-900/50">
+        <button onclick="chiudiModalCandida()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer">
+          Annulla
+        </button>
+        <button id="btnConfermaCandida" onclick="confermaCandidaBufala()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-amber-600/20 cursor-pointer flex items-center gap-1.5">
+          🚀 Invia Candidatura
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL: HALL OF FAME (CLASSIFICA) -->
   <div id="modalHallOfFame" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
@@ -401,7 +436,7 @@
     </div>
   </div>
 
-<!-- MODAL: IL PATENTINO DEL BUFALARO -->
+  <!-- MODAL: IL PATENTINO DEL BUFALARO -->
   <div id="modalPatentino" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="glass-panel w-full max-w-lg rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
       <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
@@ -480,6 +515,7 @@
       </div>
     </div>
   </div>
+
   <!-- MODAL: STORICO BUFALE DEL GIORNO -->
   <div id="modalStoricoBufale" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="glass-panel w-full max-w-2xl max-h-[85vh] rounded-2xl flex flex-col shadow-2xl border border-slate-700 overflow-hidden transform scale-95 transition-transform duration-300">
@@ -503,7 +539,7 @@
     </div>
   </div>
   
-<!-- TEMPLATE INVISIBILE PER IL CERTIFICATO -->
+  <!-- TEMPLATE INVISIBILE PER IL CERTIFICATO -->
   <div class="fixed -left-[9999px] -top-[9999px]">
     <div id="certificatoTemplate" class="w-[600px] bg-amber-50 text-slate-900 p-8 border-8 border-slate-900 font-serif relative shadow-2xl">
       <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
@@ -526,7 +562,7 @@
       </div>
       <div class="flex justify-between items-end border-t border-slate-400 pt-4 text-[10px] text-slate-600">
         <div>
-          <p>Rilasciato da: <strong class="font-sans">FakeGPT AI</strong></p>
+          <p>Rilasciato da: <strong class="font-sans">AIquarius AI</strong></p>
           <p>Garantito al: <strong class="text-red-700">0% Veritiero</strong></p>
         </div>
         <div class="text-center">
@@ -563,7 +599,7 @@
       {
         domanda: "Qual è il metodo migliore per verificare una notizia palesemente assurda?",
         opzioni: [
-          { testo: "Chiedere direttamente su FakeGPT senza alcuna verifica", corretto: true },
+          { testo: "Chiedere direttamente su AIquarius senza alcuna verifica", corretto: true },
           { testo: "Consultare almeno tre fonti giornalistiche autorevoli", corretto: false },
           { testo: "Verificare le pubblicazioni su riviste scientifiche peer-reviewed", corretto: false }
         ]
@@ -577,7 +613,7 @@
         ]
       },
       {
-        domanda: "Qual è la percentuale di affidabilità garantita da FakeGPT?",
+        domanda: "Qual è la percentuale di affidabilità garantita da AIquarius?",
         opzioni: [
           { testo: "Esattamente lo 0%, con bollino di fuffa garantita", corretto: true },
           { testo: "Il 50% di probabilità di indovinare", corretto: false },
@@ -609,7 +645,62 @@
       overlay.classList.add('opacity-0', 'pointer-events-none');
     }
 
-    // GESTIONE MODALI
+    // GESTIONE MODALE CANDIDATURA SPONSOR
+    function apriModalCandida() {
+      if (!ultimaDomanda || !ultimaRisposta) return;
+      const modal = document.getElementById('modalCandida');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      document.getElementById('sponsorModalInput').value = '';
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      document.getElementById('sponsorModalInput').focus();
+    }
+
+    function chiudiModalCandida() {
+      const modal = document.getElementById('modalCandida');
+      const content = modal.querySelector('div > div:nth-child(2)');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    async function confermaCandidaBufala() {
+      const btn = document.getElementById('btnConfermaCandida');
+      const sponsorInput = document.getElementById('sponsorModalInput');
+      const sponsor = sponsorInput.value.trim() || 'Anonimo';
+
+      try {
+        btn.disabled = true;
+        btn.innerText = '⏳ Inserimento...';
+
+        const res = await fetch('/api/classifica/vota', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domanda: ultimaDomanda, risposta: ultimaRisposta, sponsor: sponsor })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          chiudiModalCandida();
+          const btnMainCandida = document.getElementById('btnCandida');
+          btnMainCandida.innerText = '✅ Candidata!';
+          btnMainCandida.className = 'bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-500/30 transition flex items-center gap-1.5 shrink-0';
+          btnMainCandida.disabled = true;
+          caricaClassifica();
+        } else {
+          alert(data.error || "⚠️ Si è verificato un errore durante la candidatura.");
+        }
+      } catch (err) {
+        console.error("Errore durante la candidatura:", err);
+        alert("Impossibile connettersi al server.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🚀 Invia Candidatura';
+      }
+    }
+
+    // GESTIONE ALTRE MODALI
     function apriModalHallOfFame() {
       const modal = document.getElementById('modalHallOfFame');
       const content = modal.querySelector('div > div:nth-child(2)');
@@ -968,40 +1059,6 @@
       }
     }
 
-    async function candidaBufalaCorrente() {
-      const btn = document.getElementById('btnCandida');
-      const sponsorInput = document.getElementById('sponsorInput');
-      if (!ultimaDomanda || !ultimaRisposta) return;
-
-      const sponsor = sponsorInput.value.trim() || 'Anonimo';
-
-      try {
-        btn.disabled = true;
-        btn.innerText = '⏳ Inserimento...';
-
-        const res = await fetch('/api/classifica/vota', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ domanda: ultimaDomanda, risposta: ultimaRisposta, sponsor: sponsor })
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          btn.innerText = '✅ Candidata!';
-          btn.className = 'bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-500/30 transition flex items-center gap-1.5 shrink-0';
-          caricaClassifica();
-        } else {
-          btn.disabled = false;
-          btn.innerText = '🏆 Candida';
-          alert(data.error || "⚠️ Si è verificato un errore durante la candidatura.");
-        }
-      } catch (err) {
-        console.error("Errore durante la candidatura:", err);
-        btn.innerText = '❌ Errore';
-        btn.disabled = false;
-      }
-    }
-
     function mostraTab(tipo) {
       const tabHall = document.getElementById('tabHall');
       const tabVirali = document.getElementById('tabVirali');
@@ -1103,7 +1160,7 @@
 
     function copiaRisposta() {
       const testo = document.getElementById('testoRisposta').textContent;
-      navigator.clipboard.writeText(testo + " (Trovato su FakeGPT - Risposte 100% False)");
+      navigator.clipboard.writeText(testo + " (Trovato su AIquarius - Risposte 100% False)");
       alert("Bufala copiata negli appunti!");
     }
 
@@ -1122,7 +1179,7 @@
         const image = canvas.toDataURL("image/png");
         const link = document.createElement('a');
         link.href = image;
-        link.download = `Certificato_Bufala_FakeGPT.png`;
+        link.download = `Certificato_Bufala_AIquarius.png`;
         link.click();
       } catch (err) {
         console.error("Errore generazione certificato:", err);
@@ -1145,7 +1202,7 @@
     function condividiWhatsApp() {
       const domanda = document.getElementById('domandaInput').value;
       const testo = document.getElementById('testoRisposta').textContent;
-      const messaggio = encodeURIComponent(`Domanda: "${domanda}"\n\nRisposta FakeGPT: ${testo}\n\nGenerato su FakeGPT (Accuratezza 0%)`);
+      const messaggio = encodeURIComponent(`Domanda: "${domanda}"\n\nRisposta AIquarius: ${testo}\n\nGenerato su AIquarius (Accuratezza 0%)`);
       window.open(`https://api.whatsapp.com/send?text=${messaggio}`, '_blank');
     }
 
@@ -1153,7 +1210,7 @@
       const domanda = document.getElementById('domandaInput').value;
       const testo = document.getElementById('testoRisposta').textContent;
       const testoBreve = testo.length > 180 ? testo.substring(0, 177) + '...' : testo;
-      const messaggio = encodeURIComponent(`"FakeGPT su '${domanda}': ${testoBreve}" #FakeGPT`);
+      const messaggio = encodeURIComponent(`"AIquarius su '${domanda}': ${testoBreve}" #AIquarius`);
       window.open(`https://twitter.com/intent/tweet?text=${messaggio}`, '_blank');
     }
 

@@ -201,7 +201,7 @@ I TRE PILASTRI FONDAMENTALI:
 3. RISPONDI NELLA LINGUA DELL'UTENTE: Adatta sempre la lingua a quella della domanda.
 
 FORMATO E VARIAZIONE DI STILE:
-Adatta la lunghezza al tipo di formato scelto (da una sola battuta fulminante a un massimo di 3-4 frasi). Per evitare monotonia, cambia formato a ogni risposta scegliendo CASUALMENTE tra:
+Adatta la lunghezza al tipo di formato scelto (da una sola battuta fulminante a un massimo di 2-3 frasi). Per evitare monotonia, cambia formato a ogni risposta scegliendo CASUALMENTE tra:
 - Finta Breaking News (es. *"Ultim'ora da fonti anonime..."*)
 - Finto estratto di manuale o legge surreale
 - Risposta diretta da parte di un anziano saggio con aneddoto paradossale
@@ -367,6 +367,28 @@ app.get('/api/hall-of-fame', async (req, res) => {
   } catch (error) {
     console.error("Errore recupero Hall of Fame:", error);
     res.status(500).json({ error: 'Errore nel recupero della Hall of Fame.' });
+  }
+});
+
+// API: Top 5 più recenti (Appena Sfornate)
+app.get('/api/classifica/top5', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT * FROM bufale ORDER BY id DESC LIMIT 5');
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore recupero Top 5 recenti:", error);
+    res.status(500).json({ error: 'Errore nel recupero della Top 5 recenti.' });
+  }
+});
+
+// API: Top 5 più votate (Hall of Fame)
+app.get('/api/hall-of-fame/top5', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT * FROM bufale ORDER BY voti DESC, id DESC LIMIT 5');
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore recupero Top 5 Hall of Fame:", error);
+    res.status(500).json({ error: 'Errore nel recupero della Top 5 Hall of Fame.' });
   }
 });
 

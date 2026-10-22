@@ -1079,60 +1079,68 @@
     }
 
     async function caricaClassifica() {
-      try {
-        const res = await fetch('/api/classifica');
-        const data = await res.json();
-        cacheBufaleGlobali = data || [];
+  try {
+    const containerHall = document.getElementById('hallOfFameList');
+    const containerVirali = document.getElementById('ultimeViraliList');
 
-        const containerHall = document.getElementById('hallOfFameList');
-        const containerVirali = document.getElementById('ultimeViraliList');
-        
-        if (!cacheBufaleGlobali || cacheBufaleGlobali.length === 0) {
-          const vuoto = '<p class="text-xs text-slate-500 italic text-center py-4">Nessuna bufala ancora presente.</p>';
-          containerHall.innerHTML = vuoto;
-          containerVirali.innerHTML = vuoto;
-          return;
-        }
+    // Chiamate parallele alle due API con LIMIT 5 lato server
+    const [resHall, resVirali] = await Promise.all([
+      fetch('/api/hall-of-fame/top5'),
+      fetch('/api/classifica/top5')
+    ]);
 
-        const perVoti = [...cacheBufaleGlobali].sort((a, b) => b.voti - a.voti);
-        const perRecenti = [...cacheBufaleGlobali].sort((a, b) => b.id - a.id);
+    const perVoti = await resHall.json();
+    const perRecenti = await resVirali.json();
 
-        containerHall.innerHTML = perVoti.map((b, index) => `
-          <div class="glass-panel p-3 rounded-xl flex items-start justify-between gap-3 shadow-sm transition duration-200 hover:border-slate-600/60">
-            <div class="flex items-start gap-2.5 min-w-0 flex-1">
-              <span class="font-bold text-amber-400 text-xs shrink-0 mt-0.5">#${index + 1}</span>
-              <div class="min-w-0 flex-1">
-                <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
-                <p class="text-[11px] text-slate-400 italic mt-1 break-words">${b.risposta}</p>
-                <p class="text-[10px] text-indigo-400 mt-1.5 font-medium">🏷️ Sponsor: <span class="text-indigo-300 font-semibold">${b.sponsor || 'Anonimo'}</span></p>
-              </div>
+    // Aggiorniamo la cache globale usata da altre parti della pagina
+    cacheBufaleGlobali = [...perVoti, ...perRecenti];
+
+    // Render Hall of Fame (Top 5)
+    if (!perVoti || perVoti.length === 0) {
+      containerHall.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-4">Nessuna bufala ancora presente.</p>';
+    } else {
+      containerHall.innerHTML = perVoti.map((b, index) => `
+        <div class="glass-panel p-3 rounded-xl flex items-start justify-between gap-3 shadow-sm transition duration-200 hover:border-slate-600/60">
+          <div class="flex items-start gap-2.5 min-w-0 flex-1">
+            <span class="font-bold text-amber-400 text-xs shrink-0 mt-0.5">#${index + 1}</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
+              <p class="text-[11px] text-slate-400 italic mt-1 break-words">${b.risposta}</p>
+              <p class="text-[10px] text-indigo-400 mt-1.5 font-medium">🏷️ Sponsor: <span class="text-indigo-300 font-semibold">${b.sponsor || 'Anonimo'}</span></p>
             </div>
-            <button onclick="votaBufala(${b.id})" class="bg-slate-800/80 hover:bg-slate-700 text-amber-400 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-600/60 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 shrink-0 self-start cursor-pointer">
-              👍 <span>${b.voti}</span>
-            </button>
           </div>
-        `).join('');
-
-        containerVirali.innerHTML = perRecenti.map((b) => `
-          <div class="glass-panel p-3 rounded-xl flex items-start justify-between gap-3 shadow-sm transition duration-200 hover:border-slate-600/60">
-            <div class="flex items-start gap-2.5 min-w-0 flex-1">
-              <span class="text-pink-400 text-xs shrink-0 mt-0.5">🚀</span>
-              <div class="min-w-0 flex-1">
-                <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
-                <p class="text-[11px] text-slate-400 italic mt-1 break-words">${b.risposta}</p>
-                <p class="text-[10px] text-indigo-400 mt-1.5 font-medium">🏷️ Sponsor: <span class="text-indigo-300 font-semibold">${b.sponsor || 'Anonimo'}</span></p>
-              </div>
-            </div>
-            <button onclick="votaBufala(${b.id})" class="bg-slate-800/80 hover:bg-slate-700 text-pink-400 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-600/60 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 shrink-0 self-start cursor-pointer">
-              👍 <span>${b.voti}</span>
-            </button>
-          </div>
-        `).join('');
-
-      } catch (err) {
-        console.error("Errore caricamento classifiche:", err);
-      }
+          <button onclick="votaBufala(${b.id})" class="bg-slate-800/80 hover:bg-slate-700 text-amber-400 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-600/60 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 shrink-0 self-start cursor-pointer">
+            👍 <span>${b.voti}</span>
+          </button>
+        </div>
+      `).join('');
     }
+
+    // Render Appena Sfornate (Top 5)
+    if (!perRecenti || perRecenti.length === 0) {
+      containerVirali.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-4">Nessuna bufala ancora presente.</p>';
+    } else {
+      containerVirali.innerHTML = perRecenti.map((b) => `
+        <div class="glass-panel p-3 rounded-xl flex items-start justify-between gap-3 shadow-sm transition duration-200 hover:border-slate-600/60">
+          <div class="flex items-start gap-2.5 min-w-0 flex-1">
+            <span class="text-pink-400 text-xs shrink-0 mt-0.5">🚀</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold text-slate-200 break-words">"${b.domanda}"</p>
+              <p class="text-[11px] text-slate-400 italic mt-1 break-words">${b.risposta}</p>
+              <p class="text-[10px] text-indigo-400 mt-1.5 font-medium">🏷️ Sponsor: <span class="text-indigo-300 font-semibold">${b.sponsor || 'Anonimo'}</span></p>
+            </div>
+          </div>
+          <button onclick="votaBufala(${b.id})" class="bg-slate-800/80 hover:bg-slate-700 text-pink-400 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-600/60 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 shrink-0 self-start cursor-pointer">
+            👍 <span>${b.voti}</span>
+          </button>
+        </div>
+      `).join('');
+    }
+
+  } catch (err) {
+    console.error("Errore caricamento classifiche:", err);
+  }
+}
 
     async function votaBufala(id) {
       try {
