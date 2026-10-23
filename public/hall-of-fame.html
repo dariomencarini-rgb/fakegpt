@@ -254,34 +254,46 @@
     }
 
     async function votaBufala(id, reazione = 'fuffa') {
-      try {
-        const res = await fetch('/api/classifica/vota', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, reazione })
-        });
-        const data = await res.json();
+  try {
+    const res = await fetch('/api/classifica/vota', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, reazione })
+    });
+    
+    const data = await res.json();
+    
+    if (res.ok) {
+      const item = listaCompleta.find(b => b.id === id);
+      if (item) {
+        // Se il server restituisce l'oggetto aggiornato b o bufala
+        const aggiornato = data.bufala || data.b || data;
         
-        if (res.ok) {
-          const item = listaCompleta.find(b => b.id === id);
-          if (item) {
-            item.voti = data.voti || (item.voti + 1);
-            if (data.reazione_fuffa !== undefined) item.reazione_fuffa = data.reazione_fuffa;
-            if (data.reazione_clown !== undefined) item.reazione_clown = data.reazione_clown;
-            if (data.reazione_esplosa !== undefined) item.reazione_esplosa = data.reazione_esplosa;
-            if (data.reazione_vera !== undefined) item.reazione_vera = data.reazione_vera;
-            if (data.reazione_scadente !== undefined) item.reazione_scadente = data.reazione_scadente;
-            if (data.reazione_cringe !== undefined) item.reazione_cringe = data.reazione_cringe;
-          }
-          listaCompleta.sort((a, b) => b.voti - a.voti);
-          mostraDatiFiltrati();
+        // Aggiorna il punteggio totale
+        if (aggiornato.voti !== undefined) item.voti = aggiornato.voti;
+        
+        // Incrementa manualmente la reazione specifica nel client se il server non la rimanda indietro completa
+        const chiaveReazione = `reazione_${reazione}`;
+        if (aggiornato[chiaveReazione] !== undefined) {
+          item[chiaveReazione] = aggiornato[chiaveReazione];
         } else {
-          alert(data.error || "⚠️ Errore durante il voto.");
+          item[chiaveReazione] = (item[chiaveReazione] || 0) + 1;
         }
-      } catch (err) {
-        console.error("Errore voto reazione:", err);
       }
+      
+      // Se siamo nella Hall of Fame riordiniamo per punteggio
+      if (typeof listaCompleta.sort === 'function' && window.location.pathname.includes('hall-of-fame')) {
+        listaCompleta.sort((a, b) => b.voti - a.voti);
+      }
+      
+      mostraDatiFiltrati();
+    } else {
+      alert(data.error || "⚠️ Errore durante il voto.");
     }
+  } catch (err) {
+    console.error("Errore voto reazione:", err);
+  }
+}
 
     window.addEventListener('DOMContentLoaded', caricaHallOfFame);
   </script>
